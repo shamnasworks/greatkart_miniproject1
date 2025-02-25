@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SocioGramAdminSpace</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+  <style>
+    #info{
+      table, th {
+        text-align: center;
+        p{
+          margin: 0;
+        }
+      }
+      td{
+        padding: 10px 5px;
+        color: #000;
+        font-weight: 500;
+      }
+      tr{
+        text-align: center;
+        border-bottom: 5px solid rgb(33, 37, 41);
+        border-radius: 10%;
+      }
+    }
+
+    #card{
+      span{
+        color: black;
+      }
+    }
+    
+    #search .bi::before, [class*=" bi-"]::before{
+      font-weight: 900 !important;
+    }
+    #search .btn {
+      padding: 0;
+    }
+  </style>
+</head>
+<body onload="doughnut(); bar();" class="bg-black text-white" style="height: 100vh; background-color: black;">
+
+  <div class="d-flex justify-content-between align-items-center bg-dark" style="width: 100%; padding: 20px 50px;">
+    <div class="d-flex justify-content-center" style="width: 60px; height: 60px; border: 1px solid white; border-radius: 50%; overflow: hidden;">
+      <img style="height: 100px; margin-top: -5px;" src="https://media.istockphoto.com/id/891391832/sv/vektor/hacker-med-laptop.jpg?s=612x612&w=0&k=20&c=d-43Zn1tN22-jN3tZjk_YGWfLVl7rYO0u3FYFm61EhM=" alt="">
+    </div>
+    <H3 class="mb-0 text-secondary" style="font-weight: 700; font-size: 35px;">Admin Panel</H3>
+    <a href="{% url 'logout' %}" type="button" class="btn btn-primary" style="border-radius: 22px; font-size: 20px; padding: 6px 20px 6px 15px;"> <i class="bi bi-box-arrow-left"></i> Log Out</a>
+  </div>
+
+  {% block content %}
+  <div class="d-flex justify-content-between align-items-center" style="width: 100%; padding: 50px; margin: 50px 0; ">
+    
+    <div class="bg-primary d-flex justify-content-evenly align-items-center" style="width: 45%; height: 250px; flex-direction: column; border-radius: 50px; padding: 20px;">
+      <div class="d-flex" style="width: 100%;">
+
+        <table id="card" style="width: 100%;">
+          <tr >
+            <td style="width: 60%;">
+              <h3 class="" style="font-size: 25px;">Registered <span>Number of Users: </span></h3>
+            </td>
+            <td style="text-align: center; width: 15%;">
+              <h1 style="font-size: 40px;">{{ available_count }}</h1>
+            </td>
+            <td style="text-align: center; width: 25%;">
+              <a href=" {% url 'super_admin' %} " type="button" class="btn btn-success" style="border-radius: 15px; width: 133px;">Available Users</a>
+            </td>
+          </tr>
+          
+          <tr >
+            <td style="width: 60%;">
+              <h3 class="" style="font-size: 25px;">Deleted <span>Number of Users: </span></h3>
+            </td>
+            <td style="text-align: center; width: 15%;">
+              <h1 style="font-size: 40px;">{{delete_count}}</h1>
+            </td>
+            <td style="text-align: center; width: 25%;">
+              <a href="{% url 'super_admin' 'deleted_list' %}" type="button" class="btn btn-danger" style="border-radius: 15px; width: 133px;">Deleted users</a>
+            </td>
+          </tr>
+
+          <tr >
+            <td style="width: 60%;">
+              <h3 class="" style="font-size: 25px;">Updated <span>Number of Users: </span></h3>
+            </td>
+            <td style="text-align: center; width: 15%;">
+              <h1 style="font-size: 40px;">{{ update_count }}</h1>
+            </td>
+            <td style="text-align: center; width: 25%;">
+              <a href="{% url 'super_admin' 'updated_list' %}" type="button" class="btn btn-warning" style="border-radius: 15px; width: 133px;">Updated users</a>
+            </td>
+          </tr>
+        </table>
+      
+      </div>
+    </div>
+
+    <div class="bg-dark d-flex justify-content-center align-items-center text-secondary" style="width: 20%; height: 250px; border-radius: 50px; flex-direction: column; padding: 20px;" >
+      <h5>Country Wise Users Data:</h5>
+      <canvas id="myChart" style="width:100%; height: 180px;"></canvas>
+    </div>
+
+    <div class="bg-white d-flex justify-content-center align-items-center text-dark" style="width: 20%; height: 250px; border-radius: 50px; flex-direction: column; padding: 20px;">
+      <h5>User CRUD data:</h5>
+      <canvas id="pieChart" style="width:300px; max-width:300px; height:200px;"></canvas>
+    </div>
+
+  </div>
+  
+  
+  <div class="d-flex justify-content-center align-items-center" style="width: 100%;">
+    <div class="bg-dark d-flex justify-content-center align-items-center" style="width: 70%; padding: 50px; margin: 50px 0; border-radius: 50px; box-shadow: 0 0 30px 2px rgb(108, 117, 125); flex-direction: column;">
+      
+      <div style="width: 100%;">
+        {% if check != 'available_list' %}
+        <a href="{% url 'super_admin' %}" type="button" class="btn btn-danger" style="position: absolute; border-radius: 22px; font-size: 20px; padding: 6px 20px 6px 15px;"> <i class="bi bi-arrow-left-circle"></i> Back to Home</a>
+        
+        {% else %}
+        <a href=" {% url 'addUser' %} " type="button" class="btn btn-success" style="position: absolute; border-radius: 22px; font-size: 20px; padding: 6px 20px 6px 15px;"> <i class="bi bi-plus-circle"></i> Add New User</a>
+        {% endif %}
+
+        <h1 class="mb-3 text-secondary" style="text-align: center;">
+          {% if check == 'available_list' %}
+          Available User Details
+  
+          {% elif check == 'deleted_list' %}
+          Deleted User Details
+  
+          {% elif check == 'updated_list' %}
+          Updated User Details
+  
+          {% endif %}
+        </h1>
+      </div>
+
+      <form id="search" action="" method="post">
+        {% csrf_token %}
+        <div class="d-flex" style="margin: 30px 0; height:38px;">
+          <input class="form-control mr-sm-2" name="search" placeholder="Search"  style="width: 500px; border-radius: 19px;">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit" style="margin-left: -65px; border-radius: 19px; border-width:3px ; width: 65px;"><i class="bi bi-search"></i></button>    
+        </div>
+      </form>
+
+      <table style="width: 100%;" id="info">
+        <tr style="height: 50px;"><th>id</th><th>UserName</th><th>Email</th><th>Country</th><th>Edit</th><th>Delete</th></tr>
+
+        {% for item in user_info %}
+        <tr class="bg-white text-secondary ">
+          <td style="width: 2.5%;"><p>{{item.id}}</p></td>
+          <td style="width: 15%;"><p>{{item.username}}</p></td>
+          <td style="width: 32.5%;"><p>{{item.email | default:'N/A'}}</p></td>
+          <td style="width: 30%;"><p>{{item.country}}</p></td>
+          {% if check == 'available_list' %}
+          <td style="width: 10%;"><a href="{% url 'updateUser' item.id %}" type="button" class="btn btn-warning" style="border-radius: 15px;">Update</a></td>
+          <td style="width: 10%;"><a href="{% url 'deleteUser' item.id %}" type="button" class="btn btn-danger" style="border-radius: 15px;">Delete</a></td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+  
+
+  <script>
+    // Script used only for the purpose of Graphs using chart.js
+    
+    // Values for Doughnut graph
+    
+    function doughnut(){
+      const x = "{% for i in doughnut_values %} {{i}}{% endfor %}";
+      const y = "{% for i in doughnut_values.values %} {{i}}{% endfor %}";
+      color = "{% for i in doughnut_color.values %} {{i}}{% endfor %}" 
+
+      const xval = x.split(' ')
+      xval.splice(0, 1);
+      
+      const yval = y.split(' ')
+      yval.splice(0, 1);
+
+      const color_val = color.split(' ')
+      color_val.splice(0, 1);
+      
+      new Chart("myChart", {
+        type: "doughnut",
+        data: {
+          labels: xval,
+          datasets: [{
+            backgroundColor: color_val,
+            data: yval
+          }]
+        },  
+      });
+    }
+    
+
+    // Values for Bar chart
+    function bar(){
+      const xValues = ["Current", "Deleted", "Updated"];
+      const yValues = ["{{available_count}}", "{{ delete_count }}", '{{update_count}}', 0];
+      const barColors = ["green", "red", "blue"];
+
+      new Chart("pieChart", {
+        type: "bar",
+        data: {
+          labels: xValues,
+          datasets: [{
+            backgroundColor: barColors,
+            data: yValues
+          }]
+        },
+        options: {
+          legend: {display: false},
+        }
+      });
+    }
+
+    function myfun(){
+      alert("Page is loaded");
+    }
+  </script>
+  {% endblock content %}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

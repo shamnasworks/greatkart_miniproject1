@@ -6,7 +6,7 @@ from . import views
 
 urlpatterns = [
     path('', views.myadmin,name='myadmin'),
-   
+    path('user_management/', views.user_management,name='user_management'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

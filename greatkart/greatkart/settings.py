@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myadmin',
+    'accounts'
+  
 ]
 
 MIDDLEWARE = [
@@ -70,6 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'greatkart.wsgi.application'
 
+AUTH_USER_MODEL = 'accounts.Account'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -127,3 +130,17 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT= os.path.join(BASE_DIR,'media/')
 DEFAULT_AUTO_FILED = 'django.db.models.BigAutoField'
 
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.ERROR: "danger",
+    
+}
+
+
+# SMTP_CONFIGURATION
+EMAIL_HOST ='smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'shamnaswork@gmail.com'
+EMAIL_HOST_PASSWORD = 'vfan qwnh owqp fiim'
+EMAIL_USE_TLS = True
