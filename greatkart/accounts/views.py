@@ -57,10 +57,14 @@ def userlogin(request):
         
         user = auth.authenticate(email=email,password=password)
         
-        if user is not None:
+        if user is not None :
             auth.login(request,user)
             messages.success(request,'You are now logged in')
-            return redirect('dashboard')
+            
+            if user.is_admin:
+                return redirect('admin_dashboard')
+            else:
+                return redirect('dashboard')
         else:
             messages.error(request,'Invalid login credentials')
             return redirect('userlogin')

@@ -1,0 +1,44 @@
+{% extends 'myadmin/base.html' %}
+{% block sidebar %}
+{% include "myadmin/admin_sidebar.html" %}
+{% endblock sidebar %}
+{% block content %}
+
+
+
+              <h1>Edit Product</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save changes</button>
+</form>
+<h1>Remove Product</h1>
+
+<p>Are you sure you want to remove the product "{{ product.product_name }}"?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Remove</button>
+    <a href="{% url 'product_management' %}" class="btn btn-secondary">Cancel</a>
+</form>
+
+
+
+              <h1>Edit Product</h1>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Save changes</button>
+</form>
+<h1>Remove Product</h1>
+
+<p>Are you sure you want to remove the product "{{ product.product_name }}"?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Remove</button>
+    <a href="{% url 'product_management' %}" class="btn btn-secondary">Cancel</a>
+</form>{% endblock content %}
+
