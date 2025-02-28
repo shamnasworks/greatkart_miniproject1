@@ -8,19 +8,19 @@
   </a>
   <ul class="side-menu top">
       <li>
-          <a href="#">
+          <a href="{% url 'admin_dashboard' %}">
               <i class='bx bxs-dashboard' ></i>
               <span class="text">Dashboard</span>
           </a>
       </li>
       <li class="active">
-          <a href="">
+          <a href="{% url 'product_management' %}">
               <i class='bx bxs-shopping-bag-alt' ></i>
               <span class="text">Product Managemnt</span>
           </a>
       </li>
       <li>
-          <a href="#">
+          <a href="{% url 'category_management' %}">
               <i class='bx bxs-doughnut-chart' ></i>
               <span class="text">Category Management</span>
           </a>
@@ -46,7 +46,7 @@
           </a>
       </li>
       <li>
-          <a href="#" class="logout">
+          <a href="{% url 'logout' %}" class="logout">
               <i class='bx bxs-log-out-circle' ></i>
               <span class="text">Logout</span>
           </a>
@@ -73,15 +73,22 @@ rel="stylesheet">
   <div class="bg-white  h-100 p-4">
       <!-- <h6 class="mb-4">Responsive Table</h6> -->
       <div class="table-responsive">
+        <form method="post" class="d-md-flex mt-3 ms-5">
+            {% csrf_token %}
+            <input required name='search' class="form-control me-2" type="search" placeholder="Search"
+                aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
           <table class="table">
               <thead>
                   <tr>
                     {% comment %}  ('product', 'variation_category', 'variation_value', 'is_active') {% endcomment %}
                       <th scope="col">id</th>
                       <th scope="col">Product name</th>
-                      <th scope="col">Category</th>
+                      <th scope="col">Price</th>
                       <th scope="col">Stock</th>
-                      <th scope="col">Variation</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">Modified Date</th>
                       <th scope="col">Is available</th>
                       <th scope="col">Action</th>
                       <th scope="col" class="text-end"></th>
@@ -92,16 +99,20 @@ rel="stylesheet">
                   <tr>
                       <th scope="row">{{forloop.counter}}</th>
                       <td>{{ product.product_name }}</td>
-                      <td>{{ product.category.category_name }}</td>
+                      <td>{{ product.price }}</td>
                       <td>{{ product.stock }}</td>
-                      {% for variation in product.variation_set.all %}
+                      <td>{{ product.category.category_name }}</td>
+                      <td>{{ product.modified_date }}</td>
+                      <td>{{ product.is_available }}</td>
+                      <td>
+                      {% comment %} {% for variation in product.variation_set.all %}
                         <td>{{ variation.variation_category }}: {{ variation.variation_value }} ({{ variation.is_active }})</td>
                       
                         {% endfor %}  
                         
-                      <td>{{ product.is_available }}</td>
-                      {% comment %} <td>
-                        {% if not u.is_admin %}
+                      {% comment %} 
+                      {% if not u.is_admin %}
+                       {% endcomment %}
                         <!-- Button trigger modal -->
                         <button type="button" class="btn text-danger" data-bs-toggle="modal"
                             data-bs-target="#delete_model-{{forloop.counter}}">
@@ -114,18 +125,18 @@ rel="stylesheet">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">
-                                            Delete User</h1>
+                                            Delete Product</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        are you sure to delete <span class="text-danger">"{{u.username}}"</span>
+                                        are you sure to delete <span class="text-danger">"{{ product.product_name }}"</span>
 
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">Close</button>
-                                        <form action="{% url 'delete' u.id %}" style="float: right;"
+                                        <form action="{% url 'product_remove' product.id %}" style="float: right;"
                                             method="post" class="float-right d-inline">
                                             {% csrf_token %}
                                             <button type="submit"
@@ -135,7 +146,7 @@ rel="stylesheet">
                                 </div>
                             </div>
                         </div>
-                        <button type="button" class="btn text-warning" data-bs-toggle="modal"
+                      <button type="button" class="btn text-warning" data-bs-toggle="modal"
                             data-bs-target="#edit_model-{{forloop.counter}}">
                             <i class="fa fa-pen"></i>
                         </button>
@@ -147,29 +158,68 @@ rel="stylesheet">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">
-                                            Edit User</h1>
+                                            Edit Product</h1>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="{% url 'update' u.id %}" method="POST"
+                                        <form action="{% url 'product_edit' product.id %}" method="POST"
                                             class="row g-2">
                                             {% csrf_token %}
                                             <div class="form-outline mb-3">
-                                                <input required name="username" value="{{u.username}}"
+                                                <input required name="productname" value="{{ product.product_name}}"
                                                     type="text" id="form3Example1cg"
                                                     class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example1cg">User
-                                                    Name</label>
+                                                <label class="form-label" for="form3Example1cg">Product Name</label>
                                             </div>
 
                                             <div class="form-outline mb-3">
-                                                <input required name="email" value="{{ u.email }}"
+                                                <input required name="slug" value="{{ product.slug }}"
                                                     type="email" id="form3Example3cg"
                                                     class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example3cg">Your
-                                                    Email</label>
+                                                <label class="form-label" for="form3Example3cg">Slug</label>
                                             </div>
+                                            <div class="form-outline mb-3">
+                                                <input required name="description" value="{{ product.description }}"
+                                                    type="email" id="form3Example3cg"
+                                                    class="form-control form-control-lg" />
+                                                <label class="form-label" for="form3Example3cg">Description</label>
+                                            </div>
+                                            <div class="form-outline mb-3">
+                                                <input required name="price" value="{{ product.price }}"
+                                                    type="email" id="form3Example3cg"
+                                                    class="form-control form-control-lg" />
+                                                <label class="form-label" for="form3Example3cg">Price</label>
+                                            </div>
+                                            <div class="form-outline mb-3">
+                                                <input  name="price" value="{{ product.images }}"
+                                                    type="text" id="form3Example3cg"
+                                                    class="form-control form-control-lg" />
+                                                <input required name="images" type="file" id="form3Example3cg" class="form-control form-control-lg" />
+                                                <label class="form-label" for="form3Example3cg">Image</label>
+                                            </div>
+                                            <div class="form-outline mb-3">
+                                                <input required name="stock" value="{{ product.stock }}"
+                                                    type="email" id="form3Example3cg"
+                                                    class="form-control form-control-lg" />
+                                                <label class="form-label" for="form3Example3cg">Stock</label>
+                                            </div>
+                                           
+
+                                            <div class="form-outline mb-3">
+                                                <input required name="is_available" type="checkbox" id="form3Example3cg" class="form-control form-control-lg"
+                                                    {% if product.is_available %}checked{% endif %} />
+                                                <label class="form-label" for="form3Example3cg">Is available</label>
+                                                {{ product.is_available }} 
+                                            </div>
+                                                                                        <div class="form-outline mb-3">
+                                                <input required name="category" value="{{ product.category }}"
+                                                    type="email" id="form3Example3cg"
+                                                    class="form-control form-control-lg" />
+                                                <label class="form-label" for="form3Example3cg">Category</label>
+                                            </div>
+
+                                            
                                             <button type="submit"
                                                 class="btn btn-success">Update</button>
                                         </form>
@@ -180,17 +230,17 @@ rel="stylesheet">
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> 
 
 
                         <!-- this is  -->
-                        {% else %}Admin                                     
-                        {% endif %}
-                    </td> {% endcomment %}
+                        {% comment %} {% else %}Admin                                     
+                        {% endif %} {% endcomment %}
+                    </td>
                          
                   </tr>
                   {% endfor %}
-                  <h1>{{ id_value }}</h1>
+                
               </tbody>
 
           </table>
@@ -198,59 +248,93 @@ rel="stylesheet">
   </div>
 </div>
 
-{% comment %} <button type="button" class="btn btn-outline-primary m-3 sticky-bottom" style="float:right" data-bs-toggle="modal"
-data-bs-target="#adduser_model-{{forloop.counter}}">
-Add User
+<button type="button" class="btn btn-outline-primary m-3 sticky-bottom" style="float:right" data-bs-toggle="modal"
+data-bs-target="#addproduct_modal-{{forloop.counter}}">
+Add Product
 </button>
-
 <!-- Modal -->
-<div class="modal fade" id="adduser_model-{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel"
-aria-hidden="true">
+<div class="modal fade" id="addproduct_modal-{{forloop.counter}}" tabindex="-1"
+aria-labelledby="exampleModalLabel" aria-hidden="true">
 <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">Addr</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div> Use
+            <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">
+                Add Product</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Close"></button>
+        </div>
         <div class="modal-body">
-            <form action="{% url 'register' 1 %}" method="POST" class="row g-2">
+            <form action="{% url 'add_product'  %}" method="POST"
+                class="row g-2">
                 {% csrf_token %}
                 <div class="form-outline mb-3">
-                    <input required name="username" type="text" id="form3Example1cg"
+                    <input required name="product_name" value="{{ product.product_name}}"
+                        type="text" id="form3Example1cg"
                         class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example1cg">User Name</label>
+                    <label class="form-label" for="form3Example1cg">Product Name</label>
                 </div>
 
                 <div class="form-outline mb-3">
-                    <input required name="email" type="email" id="form3Example3cg"
+                    <input required name="slug" value="{{ product.slug }}"
+                        type="text" id="form3Example3cg"
                         class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example3cg">Your Email</label>
+                    <label class="form-label" for="form3Example3cg">Slug</label>
                 </div>
-
-                <div class="form-outline mb-4">
-                    <input required name="password" type="password" id="form3Example4cg"
+                <div class="form-outline mb-3">
+                    <input required name="description" value="{{ product.description }}"
+                        type="text" id="form3Example3cg"
                         class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example4cg">Password</label>
+                    <label class="form-label" for="form3Example3cg">Description</label>
                 </div>
+                <div class="form-outline mb-3">
+                    <input required name="price" value="{{ product.price }}"
+                        type="text" id="form3Example3cg"
+                        class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example3cg">Price</label>
+                </div>
+                <div class="form-outline mb-3">
+                    <input  name="price" value="{{ product.images }}"
+                        type="text" id="form3Example3cg"
+                        class="form-control form-control-lg" />
+                    <input required name="images" type="file" id="form3Example3cg" class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example3cg">Image</label>
+                </div>
+                <div class="form-outline mb-3">
+                    <input required name="stock" value="{{ product.stock }}"
+                        type="text" id="form3Example3cg"
+                        class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example3cg">Stock</label>
+                </div>
+               
 
                 <div class="form-outline mb-3">
-                    <input required name="confirmpass" type="password" id="form3Example4cdg"
+                    <input required name="is_available" type="checkbox" id="form3Example3cg" class="form-control form-control-lg"
+                        {% if product.is_available %}checked{% endif %} />
+                    <label class="form-label" for="form3Example3cg">Is available</label>
+                    {{ product.is_available }} 
+                </div>
+                <div class="form-outline mb-3">
+                    <input required name="category" value="{{ product.category }}"
+                        type="text" id="form3Example3cg"
                         class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example4cdg">Repeat your password</label>
+                    <label class="form-label" for="form3Example3cg">Category</label>
                 </div>
 
-                <div class="d-flex justify-content-center">
-                    <button type="submit" class="btn btn-outline-dark btn-lg ">Register</button>
-                </div>
-
+                <button type="submit" class="btn btn-success">Add</button>
             </form>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div> {% endcomment %}
+        </div>
     </div>
+    
 </div>
+
 </div>
+
+
+
+
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>

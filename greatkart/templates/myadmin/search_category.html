@@ -83,11 +83,11 @@ rel="stylesheet">
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">id</th>
-                    <th scope="col">First name</th>
+                    <th scope="col">Id</th>
+                    <th scope="col">Category name</th>
                     {% comment %} <th scope="col">User name</th> {% endcomment %}
-                    <th scope="col">Email</th>
-                    <th scope="col">Date joined</th>
+                    <th scope="col">Slug</th>
+                    
                   
                 </tr>
             </thead>
@@ -96,9 +96,9 @@ rel="stylesheet">
                 {% for s in result %}
                 <tr>
                     <th scope="row">{{ s.id }}</th>
-                    <td>{{s.first_name}}</td>
-                    <td>{{ s.email }}</td>
-                    <td>{{ s.date_joined }}</td>
+                    <td>{{s.category_name}}</td>
+                    <td>{{ s.slug }}</td>
+                   
 
                 </tr>
                 {% endfor %}

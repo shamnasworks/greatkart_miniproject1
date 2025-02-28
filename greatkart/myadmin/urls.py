@@ -22,7 +22,11 @@ urlpatterns = [
     path('product_management/', views.product_management,name='product_management'),
     path('product/edit/<int:product_id>/', views.product_edit, name='product_edit'),
     path('product/remove/<int:product_id>/', views.product_remove, name='product_remove'),
+    path('add_product/', views.add_product, name='add_product'),
     path('category_management/', views.category_management,name='category_management'),
+    path('category/edit/<int:category_id>/', views.category_edit, name='category_edit'),
+    path('category_delete/<int:category_id>/', views.category_delete, name='category_delete'),
+    path('category_add/', views.category_add, name='category_add'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

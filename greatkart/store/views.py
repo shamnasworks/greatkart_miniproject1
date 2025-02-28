@@ -1,39 +1,60 @@
-from django.shortcuts import render,get_object_or_404,HttpResponse
-from . models import Product,ProductGallery
+from django.shortcuts import render,get_object_or_404,HttpResponse,redirect
+from . models import Product,ProductGallery,ReviewRating
 from category.models import Category
 from carts.models import CartItem,Cart
 from carts.views import _cart_id
 from django.core.paginator import EmptyPage,PageNotAnInteger,Paginator
 from django.db.models import Q
+from django.contrib import messages
+
 # Create your views here.
-def store(request,category_slug=None):
+# Create your views here.
+def store(request, category_slug=None):
     categories = None
-    products= None
-    if category_slug != None:
-        categories = get_object_or_404(Category,slug=category_slug)
-        products = Product.objects.filter(category=categories,is_available=True)
-        paginator = Paginator(products,1)
-        page = request.GET.get('page')
-        paged_product=paginator.get_page(page)
-        product_count = products.count()
-        
+    products = None
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+
+    if category_slug:
+        categories = get_object_or_404(Category, slug=category_slug)
+        products = Product.objects.filter(category=categories, is_available=True)
+
     else:
-        
         products = Product.objects.all().filter(is_available=True).order_by('id')
-        paginator = Paginator(products,3)
-        page = request.GET.get('page')
-        paged_product=paginator.get_page(page)
-        product_count=products.count()
-        
-        
-        
-        
+
+    if min_price and max_price:
+        products = products.filter(price__gte=min_price, price__lte=max_price)
+
+    sort_option = request.GET.get('sort')
+
+    if sort_option == 'price-low-to-high':
+        products = products.order_by('price')
+    elif sort_option == 'price-high-to-low':
+        products = products.order_by('-price')
+    elif sort_option == 'name-a-to-z':
+        products = products.order_by('product_name')
+    elif sort_option == 'name-z-to-a':
+        products = products.order_by('-product_name')
+    elif sort_option == 'category-a-to-z':
+        products = products.order_by('category__name')
+    elif sort_option == 'category-z-to-a':
+        products = products.order_by('-category__name')
+
+    paginator = Paginator(products, 3)
+    page = request.GET.get('page')
+    paged_product = paginator.get_page(page)
+    product_count = products.count()
+
     context = {
-        'products':paged_product,
-        'product_count':product_count,
-       
+        'products': paged_product,
+        'product_count': product_count,
     }
-    return render(request,'greatkart/store/store.html',context)
+    return render(request, 'greatkart/store/store.html', context)
+
+
+def get_related_products(product):
+    related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
+    return related_products
 
 def product_detail(request,category_slug,product_slug):
     try:
@@ -41,15 +62,27 @@ def product_detail(request,category_slug,product_slug):
         in_cart = CartItem.objects.filter(cart__cart_id=_cart_id(request),product=single_product).exists()
         # return HttpResponse(in_cart)
         # exit()
-        
+        if single_product.is_available=='False':
+            return redirect('store')
     
     except Exception as e:
         raise e
+    product = Product.objects.get(category__slug=category_slug,slug=product_slug) 
+    related_products = get_related_products(product)  
+        
+     
     context = {
+        
         'single_product':single_product,
-        'in_cart':in_cart,
-    }    
+        'related_products': related_products,
+           'in_cart':in_cart, 
+    }
+     
+    
+
     return render(request,'greatkart/store/product_detail.html',context)
+
+
 
 
 
@@ -65,3 +98,17 @@ def search(request):
     }
     
     return render(request,'greatkart/store/store.html',context)
+
+
+def add_review(request, product_id):
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        review = request.POST.get('review')
+        product = Product.objects.get(id=product_id)
+        ReviewRating.objects.create(product=product, rating=rating, review=review)
+        product.rating = (product.rating * product.num_reviews + int(rating)) / (product.num_reviews + 1)
+        product.num_reviews += 1
+        product.save()
+        messages.success(request, 'Review added successfully!')
+        
+        return redirect('product_detail', product_id)

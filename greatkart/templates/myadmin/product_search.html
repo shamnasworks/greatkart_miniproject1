@@ -14,7 +14,7 @@
               <span class="text">Dashboard</span>
           </a>
       </li>
-      <li>
+      <li class="active">
           <a href="{% url 'product_management' %}">
               <i class='bx bxs-shopping-bag-alt' ></i>
               <span class="text">Product Managemnt</span>
@@ -32,7 +32,7 @@
               <span class="text">Message</span>
           </a>
       </li>
-      <li class="active">
+      <li >
           <a href="{% url 'user_management' %}">
               <i class='bx bxs-group' ></i>
               <span class="text">User Management</span>
@@ -83,22 +83,35 @@ rel="stylesheet">
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">id</th>
-                    <th scope="col">First name</th>
-                    {% comment %} <th scope="col">User name</th> {% endcomment %}
-                    <th scope="col">Email</th>
-                    <th scope="col">Date joined</th>
-                  
-                </tr>
+                    {% comment %}  ('product', 'variation_category', 'variation_value', 'is_active') {% endcomment %}
+                      <th scope="col">id</th>
+                      <th scope="col">Product name</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Stock</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">Modified Date</th>
+                      <th scope="col">Is available</th>
+                      <th scope="col">Action</th>
+                      <th scope="col" class="text-end"></th>
+                  </tr>
+             
+                 
             </thead>
             <tbody>
                 {% if  result %}
                 {% for s in result %}
                 <tr>
-                    <th scope="row">{{ s.id }}</th>
-                    <td>{{s.first_name}}</td>
-                    <td>{{ s.email }}</td>
-                    <td>{{ s.date_joined }}</td>
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <td>{{ s.product_name }}</td>
+                        <td>{{ s.price }}</td>
+                        <td>{{ s.stock }}</td>
+                        <td>{{ s.category.category_name }}</td>
+                        <td>{{ s.modified_date }}</td>
+                        <td>{{ s.is_available }}</td>
+                       
+                    </tr>
+                   
 
                 </tr>
                 {% endfor %}

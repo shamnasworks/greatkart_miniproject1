@@ -18,13 +18,22 @@ def index(request):
     return render(request,'myadmin/admin_panel.html')
 
 
+
+# user management
+
 def user_management(request):
     users=Account.objects.all().order_by('-id')
-    paginator = Paginator(users,1)
-    page = request.GET.get('page')
-    paged_user=paginator.get_page(page)
-    user_count = users.count()
-  
+    # paginator = Paginator(users,1)
+    # page = request.GET.get('page')
+    # paged_user=paginator.get_page(page)
+    # user_count = users.count()
+    if request.method == 'POST':            
+        search = request.POST['search']         
+        searchresult = Account.objects.filter(username__contains=search)           
+        return render(request,'myadmin/search.html',{'result':searchresult})          
+    # paginator = Paginator(users,3)
+    # page = request.GET.get('page')
+    # paged_product=paginator.get_page(page)       
    
     dict_user={
             'users':users,
@@ -46,14 +55,70 @@ def unblock_user(request, user_id):
 
 
 
+# category
+def category_management(request):
+    categories = Category.objects.filter().order_by('-id')
+    if request.method == 'POST':            
+        search = request.POST['search']         
+        searchresult = Category.objects.filter(category_name__contains=search)           
+        return render(request,'myadmin/search_category.html',{'result':searchresult})          
+                
+
+    dict_category = {
+        'categories': categories,
+    }
+
+    return render(request, 'myadmin/category_management.html', dict_category)
 
 
 
+def category_edit(request, category_id):
+    category_name=request.POST['category_name']
+    slug=request.POST['slug']
+    updated_category = Category.objects.filter(id=category_id)
+    updated_category.update(category_name=category_name,slug=slug)
+
+    if Category.objects.filter(category_name__contains=category_name).exists():
+        return redirect(category_management)
+    else:
+        updated_category.update(category_name=category_name,slug=slug)
+        return redirect(category_management)
+
+def category_delete(request,category_id):
+    del_record = Category.objects.filter(id=category_id)
+    del_record.delete()
+    return redirect(category_management)
 
 
+def category_add(request):
+    if request.method == 'POST':
+        category_name = request.POST['category_name']
+        slug = request.POST['slug']
+        description = request.POST['description']
+        cart_image = request.FILES['cart_image']
+
+        category = Category()
+        category.category_name = category_name
+        category.slug = slug
+        category.description = description
+        category.cart_image = cart_image
+        category.save()
+
+        return redirect('category_management')
    
+
+
+
+
+
+# product management
+  
 def product_management(request):
     products = Product.objects.filter(is_available=True)
+    if request.method == 'POST':            
+        search = request.POST['search']         
+        searchresult = Product.objects.filter(product_name__contains=search)           
+        return render(request,'myadmin/product_search.html',{'result':searchresult})     
 
     dict_product = {
         'products': products,
@@ -64,31 +129,57 @@ def product_management(request):
 
 
 def product_edit(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
-    if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES, instance=product)
-        if form.is_valid():
-            form.save()
-            return redirect('product_management')
+    product_name=request.POST['product_name']
+    slug=request.POST['slug']
+    description=request.POST['description']
+    price=request.POST['price']
+    images = request.FILES['images']
+    stock=request.POST['stock']
+    is_avialble=request.POST['is_available']
+    category =request.POST['category']
+    updated_product= Product.objects.filter(id=product_id)
+    updated_product.update(product_name=product_name,slug=slug)
+
+    if Product.objects.filter(product_name__contains=product_name).exists():
+        return redirect(product_management)
     else:
-        form = ProductForm(instance=product)
-    return render(request, 'myadmin/product_edit.html', {'form': form})
+        updated_product.update(product_name=product_name,slug=slug)
+        return redirect(product_management)
+  
 
 def product_remove(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
     if request.method == 'POST':
         product.delete()
         return redirect('product_management')
-    return render(request, 'myadmin/product_remove.html', {'product': product})
+   
+   
+def add_product(request):
+    if request.method == 'POST':
+        product_name = request.POST['productname']
+        slug = request.POST['slug']
+        description = request.POST['description']
+        product_images = request.FILES.get('images')
+        stock=request.POST['stock']
+        is_avialble=request.POST['is_available']
+        category =request.POST['category']
+        
+        product = Product()
 
-def category_management(request):
-    products = Product.objects.filter(is_available=True)
+       
+        product.product_name = product_name
+        product.slug = slug
+        product.description = description
+        product.images = product_images
+        product.save()
 
-    dict_product = {
-        'products': products,
-    }
+        return redirect('product_management')
+   
 
-    return render(request, 'myadmin/category_management.html', dict_product)
+
+
+
+
 
 
 
@@ -128,11 +219,7 @@ def register(request,verify):
 def adminn(request):           
     if not request.user.is_admin:           
         return redirect(index)           
-    if request.method == 'POST':            
-        search = request.POST['search']         
-        searchresult = Account.objects.filter(username__contains=search)           
-        return render(request,'search.html',{'result':searchresult})          
-                
+    
     else:           
         dict_user={
             'users':Account.objects.all().order_by('id')
