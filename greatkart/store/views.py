@@ -36,9 +36,9 @@ def store(request, category_slug=None):
     elif sort_option == 'name-z-to-a':
         products = products.order_by('-product_name')
     elif sort_option == 'category-a-to-z':
-        products = products.order_by('category__name')
+        products = products.order_by('category__category_name')
     elif sort_option == 'category-z-to-a':
-        products = products.order_by('-category__name')
+        products = products.order_by('-category__category_name')
 
     paginator = Paginator(products, 3)
     page = request.GET.get('page')

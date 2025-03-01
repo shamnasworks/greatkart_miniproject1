@@ -25,3 +25,15 @@ class CartItem(models.Model):
     
     def __unicode__(self):
         return self.product
+    
+    
+    
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    discount_type = models.CharField(max_length=50, choices=[('percentage', 'Percentage'), ('amount', 'Amount')])
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2)
+    min_order_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    max_discount_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
