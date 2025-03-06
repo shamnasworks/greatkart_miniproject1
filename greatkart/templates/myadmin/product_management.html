@@ -31,7 +31,7 @@
               <span class="text">Message</span>
           </a>
       </li>
-      <li >
+      <li>
           <a href="{% url 'user_management' %}">
               <i class='bx bxs-group' ></i>
               <span class="text">User Management</span>
@@ -55,269 +55,175 @@
 </section>
 {% endblock sidebar %}
 
-
 {% block content %}
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap"
-rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
 <!-- Icon Font Stylesheet -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
-
-
 <!-- Template Stylesheet -->
 <link href="{% static 'myadmin/style1.css' %}" rel="stylesheet"> 
 
 <div class="col-12 ">
   <div class="bg-white  h-100 p-4">
-      <!-- <h6 class="mb-4">Responsive Table</h6> -->
       <div class="table-responsive">
-        <form method="post" class="d-md-flex mt-3 ms-5">
-            {% csrf_token %}
-            <input required name='search' class="form-control me-2" type="search" placeholder="Search"
-                aria-label="Search">
-            <button class="btn btn-outline-success" type="submit">Search</button>
-        </form>
-          <table class="table">
-              <thead>
-                  <tr>
-                    {% comment %}  ('product', 'variation_category', 'variation_value', 'is_active') {% endcomment %}
-                      <th scope="col">id</th>
-                      <th scope="col">Product name</th>
-                      <th scope="col">Price</th>
-                      <th scope="col">Stock</th>
-                      <th scope="col">Category</th>
-                      <th scope="col">Modified Date</th>
-                      <th scope="col">Is available</th>
-                      <th scope="col">Action</th>
-                      <th scope="col" class="text-end"></th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for product in products %}
-                  <tr>
-                      <th scope="row">{{forloop.counter}}</th>
-                      <td>{{ product.product_name }}</td>
-                      <td>{{ product.price }}</td>
-                      <td>{{ product.stock }}</td>
-                      <td>{{ product.category.category_name }}</td>
-                      <td>{{ product.modified_date }}</td>
-                      <td>{{ product.is_available }}</td>
-                      <td>
-                      {% comment %} {% for variation in product.variation_set.all %}
-                        <td>{{ variation.variation_category }}: {{ variation.variation_value }} ({{ variation.is_active }})</td>
-                      
-                        {% endfor %}  
-                        
-                      {% comment %} 
-                      {% if not u.is_admin %}
-                       {% endcomment %}
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn text-danger" data-bs-toggle="modal"
-                            data-bs-target="#delete_model-{{forloop.counter}}">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                        <!-- Modal -->
-                        <div class="modal fade" id="delete_model-{{forloop.counter}}" tabindex="-1"
-                            aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">
-                                            Delete Product</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        are you sure to delete <span class="text-danger">"{{ product.product_name }}"</span>
-
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Close</button>
-                                        <form action="{% url 'product_remove' product.id %}" style="float: right;"
-                                            method="post" class="float-right d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit"
-                                                class="btn btn-outline-primary">Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                      <button type="button" class="btn text-warning" data-bs-toggle="modal"
-                            data-bs-target="#edit_model-{{forloop.counter}}">
-                            <i class="fa fa-pen"></i>
-                        </button>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="edit_model-{{forloop.counter}}" tabindex="-1"
-                            aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">
-                                            Edit Product</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form action="{% url 'product_edit' product.id %}" method="POST"
-                                            class="row g-2">
-                                            {% csrf_token %}
-                                            <div class="form-outline mb-3">
-                                                <input required name="productname" value="{{ product.product_name}}"
-                                                    type="text" id="form3Example1cg"
-                                                    class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example1cg">Product Name</label>
-                                            </div>
-
-                                            <div class="form-outline mb-3">
-                                                <input required name="slug" value="{{ product.slug }}"
-                                                    type="email" id="form3Example3cg"
-                                                    class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example3cg">Slug</label>
-                                            </div>
-                                            <div class="form-outline mb-3">
-                                                <input required name="description" value="{{ product.description }}"
-                                                    type="email" id="form3Example3cg"
-                                                    class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example3cg">Description</label>
-                                            </div>
-                                            <div class="form-outline mb-3">
-                                                <input required name="price" value="{{ product.price }}"
-                                                    type="email" id="form3Example3cg"
-                                                    class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example3cg">Price</label>
-                                            </div>
-                                            <div class="form-outline mb-3">
-                                                <input  name="price" value="{{ product.images }}"
-                                                    type="text" id="form3Example3cg"
-                                                    class="form-control form-control-lg" />
-                                                <input required name="images" type="file" id="form3Example3cg" class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example3cg">Image</label>
-                                            </div>
-                                            <div class="form-outline mb-3">
-                                                <input required name="stock" value="{{ product.stock }}"
-                                                    type="email" id="form3Example3cg"
-                                                    class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example3cg">Stock</label>
-                                            </div>
-                                           
-
-                                            <div class="form-outline mb-3">
-                                                <input required name="is_available" type="checkbox" id="form3Example3cg" class="form-control form-control-lg"
-                                                    {% if product.is_available %}checked{% endif %} />
-                                                <label class="form-label" for="form3Example3cg">Is available</label>
-                                                {{ product.is_available }} 
-                                            </div>
-                                                                                        <div class="form-outline mb-3">
-                                                <input required name="category" value="{{ product.category }}"
-                                                    type="email" id="form3Example3cg"
-                                                    class="form-control form-control-lg" />
-                                                <label class="form-label" for="form3Example3cg">Category</label>
-                                            </div>
-
-                                            
-                                            <button type="submit"
-                                                class="btn btn-success">Update</button>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
-
-
-                        <!-- this is  -->
-                        {% comment %} {% else %}Admin                                     
-                        {% endif %} {% endcomment %}
-                    </td>
-                         
-                  </tr>
-                  {% endfor %}
-                
-              </tbody>
-
-          </table>
-      </div>
-  </div>
-</div>
-
-<button type="button" class="btn btn-outline-primary m-3 sticky-bottom" style="float:right" data-bs-toggle="modal"
-data-bs-target="#addproduct_modal-{{forloop.counter}}">
-Add Product
-</button>
-<!-- Modal -->
-<div class="modal fade" id="addproduct_modal-{{forloop.counter}}" tabindex="-1"
-aria-labelledby="exampleModalLabel" aria-hidden="true">
-<div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">
-                Add Product</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form action="{% url 'add_product'  %}" method="POST"
-                class="row g-2">
+            <form method="post" class="d-md-flex mt-3 ms-5">
                 {% csrf_token %}
-                <div class="form-outline mb-3">
-                    <input required name="product_name" value="{{ product.product_name}}"
-                        type="text" id="form3Example1cg"
-                        class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example1cg">Product Name</label>
+                <input required name='search' class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">Product name</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Stock</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Modified Date</th>
+                        <th scope="col">Is available</th>
+                        <th scope="col">Action</th>
+                        <th scope="col" class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <th scope="row">{{forloop.counter}}</th>
+                        <td>{{ product.product_name }}</td>
+                        <td>{{ product.price }}</td>
+                        <td>{{ product.stock }}</td>
+                        <td>{{ product.category.category_name }}</td>
+                        <td>{{ product.modified_date }}</td>
+                        <td>{{ product.is_available }}</td>
+                        <td>
+                            {% comment %} {% for variation in product.variation_set.all %}
+                                <td>{{ variation.variation_category }}: {{ variation.variation_value }} ({{ variation.is_active }})</td>
+                        
+                                {% endfor %}  
+                            
+                            {% endcomment %} 
+                    
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn text-danger" data-bs-toggle="modal" data-bs-target="#delete_model-{{forloop.counter}}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="delete_model-{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">Delete Product</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">are you sure to delete <span class="text-danger">"{{ product.product_name }}"</span></div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                <form action="{% url 'product_remove' product.id %}" style="float: right;" method="post" class="float-right d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-outline-primary">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn text-warning" data-bs-toggle="modal" data-bs-target="#edit_model-{{forloop.counter}}">
+                                    <i class="fa fa-pen"></i>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="edit_model-{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">Edit Product</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="{% url 'product_edit' product.id %}" method="POST" class="row g-2">
+                                                    {% csrf_token %}
+                                                    <div class="form-outline mb-3">
+                                                        <input required name="productname" value="{{ product.product_name}}" type="text" id="form3Example1cg" class="form-control form-control-lg" />
+                                                        <label class="form-label" for="form3Example1cg">Product Name</label>
+                                                    </div>
+                                                    <div class="form-outline mb-3">
+                                                        <input required name="slug" value="{{ product.slug }}" type="text" id="form3Example3cg" class="form-control form-control-lg" />
+                                                        <label class="form-label" for="form3Example3cg">Slug</label>
+                                                    </div>
+                                                    <div class="form-outline mb-3">
+                                                        <input required name="description" value="{{ product.description }}" type="text" id="form3Example3cg" class="form-control form-control-lg" />
+                                                        <label class="form-label" for="form3Example3cg">Description</label>
+                                                    </div>
+                                                    <div class="form-outline mb-3">
+                                                        <input required name="price" value="{{ product.price }}" type="text" id="form3Example3cg" class="form-control form-control-lg" />
+                                                        <label class="form-label" for="form3Example3cg">Price</label>
+                                                    </div>
+                                                    <div class="form-outline mb-3">
+                                                        <input  name="price" value="{{ product.images }}" type="text" id="form3Example3cg" class="form-control form-control-lg" />
+                                                        <input required name="images" type="file" id="form3Example3cg" class="form-control form-control-lg" />
+                                                        <label class="form-label" for="form3Example3cg">Image</label>
+                                                    </div>
+                                                    <div class="form-outline mb-3">
+                                                        <input required name="stock" value="{{ product.stock }}" type="text" id="form3Example3cg" class="form-control form-control-lg" />
+                                                        <label class="form-label" for="form3Example3cg">Stock</label>
+                                                    </div>
+                                                    <div class="form-outline mb-3">
+                                                        <input required name="is_available" type="checkbox" id="form3Example3cg" class="form-control form-control-lg"
+                                                            {% if product.is_available %}checked{% endif %} />
+                                                        <label class="form-label" for="form3Example3cg">Is available</label>
+                                                        {{ product.is_available }} 
+                                                    </div>
+                                                        <div class="form-outline mb-3">
+                                                            <input required name="category" value="{{ product.category }}" type="text" id="form3Example3cg" class="form-control form-control-lg" />
+                                                        <label class="form-label" for="form3Example3cg">Category</label>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success">Update</button>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <!-- Add Category Modal -->
+            <button type="button" class="btn btn-outline-primary m-3 sticky-bottom" style="float:right" data-bs-toggle="modal" data-bs-target="#add_category_modal">
+                Add Category
+            </button>
+            <!-- Add Category Modal -->
+            <div class="modal fade" id="add_category_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">Add Category</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                        <form action="{% url 'category_add' %}" method="POST"  enctype="multipart/form-data" class="row g-2">
+                            {% csrf_token %}
+                            <div class="form-outline mb-3">
+                    <input required name="category_name" type="text" id="form3Example1cg" class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example1cg">Category Name</label>
                 </div>
 
                 <div class="form-outline mb-3">
-                    <input required name="slug" value="{{ product.slug }}"
-                        type="text" id="form3Example3cg"
-                        class="form-control form-control-lg" />
+                    <input required name="slug" type="text" id="form3Example3cg" class="form-control form-control-lg" />
                     <label class="form-label" for="form3Example3cg">Slug</label>
                 </div>
-                <div class="form-outline mb-3">
-                    <input required name="description" value="{{ product.description }}"
-                        type="text" id="form3Example3cg"
-                        class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example3cg">Description</label>
-                </div>
-                <div class="form-outline mb-3">
-                    <input required name="price" value="{{ product.price }}"
-                        type="text" id="form3Example3cg"
-                        class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example3cg">Price</label>
-                </div>
-                <div class="form-outline mb-3">
-                    <input  name="price" value="{{ product.images }}"
-                        type="text" id="form3Example3cg"
-                        class="form-control form-control-lg" />
-                    <input required name="images" type="file" id="form3Example3cg" class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example3cg">Image</label>
-                </div>
-                <div class="form-outline mb-3">
-                    <input required name="stock" value="{{ product.stock }}"
-                        type="text" id="form3Example3cg"
-                        class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example3cg">Stock</label>
-                </div>
-               
 
                 <div class="form-outline mb-3">
-                    <input required name="is_available" type="checkbox" id="form3Example3cg" class="form-control form-control-lg"
-                        {% if product.is_available %}checked{% endif %} />
-                    <label class="form-label" for="form3Example3cg">Is available</label>
-                    {{ product.is_available }} 
+                    <input required name="description" type="text" id="form3Example3cg" class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example3cg">Description</label>
                 </div>
+
                 <div class="form-outline mb-3">
-                    <input required name="category" value="{{ product.category }}"
-                        type="text" id="form3Example3cg"
-                        class="form-control form-control-lg" />
-                    <label class="form-label" for="form3Example3cg">Category</label>
+                    <input required name="cart_image" type="file" id="form3Example3cg" class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example3cg">Cart Image</label>
                 </div>
 
                 <button type="submit" class="btn btn-success">Add</button>
@@ -331,9 +237,32 @@ aria-labelledby="exampleModalLabel" aria-hidden="true">
 </div>
 
 </div>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    {% if products.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a></li>
+                    {% else %}
+                        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    {% endif %}
+                    {% for i in products.paginator.page_range %}
+                        {% if products.number == i %}
+                            <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if products.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}">Next</a></li>
+                    {% else %}
+                        <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
 
-
-
+{% comment %} {% endfor %} {% endcomment %}
 
     <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>

@@ -1,0 +1,391 @@
+{% extends 'myadmin/admin_base.html' %}
+{% load static %}
+{% block sidebar %}
+<section id="sidebar">
+  <a href="#" class="brand">
+      <i class='bx bxs-smile'></i>
+      <span class="text">Greatkart- Admin</span>
+  </a>
+  <ul class="side-menu top">
+      <li>
+          <a href="{% url 'admin_dashboard' %}">
+              <i class='bx bxs-dashboard' ></i>
+              <span class="text">Dashboard</span>
+          </a>
+      </li>
+      <li>
+          <a href="{% url 'product_management' %}">
+              <i class='bx bxs-shopping-bag-alt' ></i>
+              <span class="text">Product Managemnt</span>
+          </a>
+      </li>
+      <li>
+          <a href="{% url 'category_management' %}">
+              <i class='bx bxs-doughnut-chart' ></i>
+              <span class="text">Category Management</span>
+          </a>
+      </li>
+      <li class="active">
+          <a href="#">
+              <i class='bx bxs-message-dots' ></i>
+              <span class="text">Variation Management</span>
+          </a>
+      </li>
+      <li>
+          <a href="{% url 'user_management' %}">
+              <i class='bx bxs-group' ></i>
+              <span class="text">User Management</span>
+          </a>
+      </li>
+  </ul>
+  <ul class="side-menu">
+      <li>
+          <a href="#">
+              <i class='bx bxs-cog' ></i>
+              <span class="text">Settings</span>
+          </a>
+      </li>
+      <li>
+          <a href="{% url 'logout' %}" class="logout">
+              <i class='bx bxs-log-out-circle' ></i>
+              <span class="text">Logout</span>
+          </a>
+      </li>
+  </ul>
+</section>
+{% endblock sidebar %}
+
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap"
+rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+<!-- Icon Font Stylesheet -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+
+
+<!-- Template Stylesheet -->
+<link href="{% static 'myadmin/style1.css' %}" rel="stylesheet"> 
+
+<div class="col-12 ">
+  <div class="bg-white  h-100 p-4">
+      <!-- <h6 class="mb-4">Responsive Table</h6> -->
+      <div class="table-responsive">
+        <form method="post" class="d-md-flex mt-3 ms-5">
+            {% csrf_token %}
+            <input required name='search' class="form-control me-2" type="search" placeholder="Search"
+                aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+          <table class="table">
+              <thead>
+                  <tr>
+                    {% comment %} ('email', 'first_name', 'last_name', 'username', 'last_login', 'date_joined', 'is_active') {% endcomment %}
+                      <th scope="col">id</th>
+                      <th scope="col">First name</th>
+                     
+                      <th scope="col">Username</th>
+                      <th scope="col">Email</th>
+                      {% comment %} <th scope="col">Last login</th> {% endcomment %}
+                      <th scope="col">Date joined</th>
+                      <th scope="col">Is active</th>
+                      <th scope="col">Action</th>
+                      <th scope="col" class="text-end"></th>
+                      <th scope="col"></th>
+                      
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for u in users %}
+                  <tr>
+                      <th scope="row">{{forloop.counter}}</th>
+                      <td>{{u.first_name}}</td>
+                      
+                      <td>{{u.username}}</td>
+                      <td>{{ u.email }}</td>
+                      {% comment %} <td>{{u.last_login}}</td> {% endcomment %}
+                      <td>{{ u.date_joined }}</td>
+                      {% comment %} <td>{{u.username}}</td> {% endcomment %}
+                      <td>{{ u.is_active }}</td>
+                      <td>
+                          {% if not u.is_admin %}
+                          <!-- Button trigger modal -->
+                          <button type="button" class="btn text-danger" data-bs-toggle="modal"
+                              data-bs-target="#delete_model-{{forloop.counter}}">
+                              <i class="bi bi-trash"></i>
+                          </button>
+                          <!-- Modal -->
+                          <div class="modal fade" id="delete_model-{{forloop.counter}}" tabindex="-1"
+                              aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                  <div class="modal-content">
+                                      <div class="modal-header">
+                                          <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">
+                                              Delete User</h1>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                              aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                          are you sure to delete <span class="text-danger">"{{u.username}}"</span>
+
+                                      </div>
+                                      <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary"
+                                              data-bs-dismiss="modal">Close</button>
+                                          <form action="{% url 'delete' u.id %}" style="float: right;"
+                                              method="post" class="float-right d-inline">
+                                              {% csrf_token %}
+                                              <button type="submit"
+                                                  class="btn btn-outline-primary">Delete</button>
+                                          </form>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          <button type="button" class="btn text-warning" data-bs-toggle="modal"
+                              data-bs-target="#edit_model-{{forloop.counter}}">
+                              <i class="fa fa-pen"></i>
+                          </button>
+
+                          <!-- Modal -->
+                          <div class="modal fade" id="edit_model-{{forloop.counter}}" tabindex="-1"
+                              aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                  <div class="modal-content">
+                                      <div class="modal-header">
+                                          <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">
+                                              Edit User</h1>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                              aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                          <form action="{% url 'update' u.id %}" method="POST"
+                                              class="row g-2">
+                                              {% csrf_token %}
+                                              <div class="form-outline mb-3">
+                                                  <input required name="username" value="{{u.username}}"
+                                                      type="text" id="form3Example1cg"
+                                                      class="form-control form-control-lg" />
+                                                  <label class="form-label" for="form3Example1cg">User
+                                                      Name</label>
+                                              </div>
+
+                                              <div class="form-outline mb-3">
+                                                  <input required name="email" value="{{ u.email }}"
+                                                      type="email" id="form3Example3cg"
+                                                      class="form-control form-control-lg" />
+                                                  <label class="form-label" for="form3Example3cg">Your
+                                                      Email</label>
+                                              </div>
+                                              <button type="submit"
+                                                  class="btn btn-success">Update</button>
+                                          </form>
+                                      </div>
+                                      <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary"
+                                              data-bs-dismiss="modal">Close</button>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          {% comment %} 
+                          block the user_management 
+                          {% endcomment %} 
+                         
+                          
+
+{% comment %} end block user content {% endcomment %}
+                          <!-- this is  -->
+                          {% else %}Admin                                     
+                          {% endif %}
+                      </td>
+                      <td>
+                     
+                       
+                         
+                            {% if u.is_active %}
+                              <a href="{% url 'block_user' u.id %}" class="btn btn-danger" data-bs-toggle="modal"
+                              data-bs-target="#block_model-{{forloop.counter}}">Block</a>
+                                <!-- Modal -->
+                                    <div class="modal fade" id="block_model-{{forloop.counter}}" tabindex="-1"
+                                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">Block User</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure to Block 
+                                                    <span class="text-danger">"{{u.username}}"</span>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <form action="{% url 'block_user' u.id %}" style="float: right;" method="post" class="float-right d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-outline-primary">Block</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                            {% else %}
+                              {% if u.id %}
+                                <a href="{% url 'unblock_user' u.id %}" class="btn btn-success"  data-bs-toggle="modal"
+                                data-bs-target="#unblock_model-{{forloop.counter}}">Unblock</a>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="unblock_model-{{forloop.counter}}" tabindex="-1"
+                                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">Unblock User</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure to Unblock 
+                                            <span class="text-danger">"{{u.username}}"</span>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <form action="{% url 'unblock_user' u.id %}" style="float: right;" method="post" class="float-right d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-primary">Unblock</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                              {% else %}
+                                <button class="btn btn-success" disabled data-bs-toggle="modal"
+                              data-bs-target="#unblock_model-{{forloop.counter}}">Unblock</button>
+                              {% endif %}
+                            {% endif %}
+                        
+                   
+ 
+             
+                       </td>
+                       
+                  </tr>
+                  {% endfor %}
+                  <h1>{{ id_value }}</h1>
+              </tbody>
+          </table>
+     
+<button type="button" class="btn btn-outline-primary m-3 sticky-bottom" style="float:right" data-bs-toggle="modal"
+data-bs-target="#adduser_model-{{forloop.counter}}">
+Add User
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="adduser_model-{{forloop.counter}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+aria-hidden="true">
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title text-dark fs-5" id="exampleModalLabel">Add User</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form action="{% url 'register' 1 %}" method="POST" class="row g-2">
+                {% csrf_token %}
+                <div class="form-outline mb-3">
+                    <input required name="username" type="text" id="form3Example1cg"
+                        class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example1cg">User Name</label>
+                </div>
+                <div class="form-outline mb-3">
+                    <input required name="first_name" type="text" id="form3Example1cg"
+                        class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example1cg">First Name</label>
+                </div>
+                <div class="form-outline mb-3">
+                    <input required name="last_name" type="text" id="form3Example1cg"
+                        class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example1cg">Last Name</label>
+                </div>
+
+                <div class="form-outline mb-3">
+                    <input required name="email" type="email" id="form3Example3cg"
+                        class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example3cg">Your Email</label>
+                </div>
+
+                <div class="form-outline mb-4">
+                    <input required name="password" type="password" id="form3Example4cg"
+                        class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example4cg">Password</label>
+                </div>
+
+                <div class="form-outline mb-3">
+                    <input required name="confirmpass" type="password" id="form3Example4cdg"
+                        class="form-control form-control-lg" />
+                    <label class="form-label" for="form3Example4cdg">Repeat your password</label>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-outline-dark btn-lg ">Register</button>
+                </div>
+
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+</div>
+{% comment %} {% for u in users %} {% endcomment %}
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        {% if users.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ users.previous_page_number }}">Previous</a></li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+        {% endif %}
+
+        {% for i in users.paginator.page_range %}
+            {% if users.number == i %}
+                <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+            {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if users.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ users.next_page_number }}">Next</a></li>
+        {% else %}
+            <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+</div>
+</div>
+</div>
+
+{% comment %} {% endfor %} {% endcomment %}
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/chart/chart.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/tempusdominus/js/moment.min.js"></script>
+    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="{% static 'myadmin/js/main.js' %}"></script>
+{% endblock content %}
+
+

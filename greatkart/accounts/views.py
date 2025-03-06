@@ -56,7 +56,7 @@ def userlogin(request):
         password = request.POST['password']
         
         user = auth.authenticate(email=email,password=password)
-        
+        print(user)
         if user is not None :
             auth.login(request,user)
             messages.success(request,'You are now logged in')
@@ -66,10 +66,11 @@ def userlogin(request):
             else:
                 return redirect('dashboard')
         else:
-            messages.error(request,'Invalid login credentials')
+            messages.error(request,'Invalid login credentials or The user  might be blocked!')
             return redirect('userlogin')
     
     return render(request,'greatkart/accounts/userlogin.html')
+
 
 @login_required(login_url='userlogin')
 def userlogout(request):
@@ -151,16 +152,26 @@ def resetpassword(request):
     if request.method == 'POST':
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
-        if password == confirm_password:
-            uid = request.session.get('uid')
-            user= Account.objects.get(pk=uid)
-            user.set_password(password)
+        
+        # Validate password strength and complexity
+        if len(password) < 8:
+            messages.error(request, 'Password must be at least 8 characters long')
+            return redirect('resetpassword')
+        
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match')
+            return redirect('resetpassword')
+        
+        uid = request.session.get('uid')
+        user = Account.objects.get(pk=uid)
+        user.set_password(password)
+        try:
             user.save()
-            messages.success(request,'Password reset successful')
+            messages.success(request, 'Password reset successful')
             return redirect('userlogin')
-            
-        else:
-            messages.error(request,'Password do not match')
+        except Exception as e:
+            messages.error(request, 'Error resetting password: ' + str(e))
             return redirect('resetpassword')
     else:
-        return render(request,'greatkart/accounts/resetpassword.html')
+        return render(request, 'greatkart/accounts/resetpassword.html')
+# 

@@ -23,22 +23,27 @@ def index(request):
 
 def user_management(request):
     users=Account.objects.all().order_by('-id')
-    # paginator = Paginator(users,1)
-    # page = request.GET.get('page')
-    # paged_user=paginator.get_page(page)
-    # user_count = users.count()
+
     if request.method == 'POST':            
         search = request.POST['search']         
         searchresult = Account.objects.filter(username__contains=search)           
         return render(request,'myadmin/search.html',{'result':searchresult})          
-    # paginator = Paginator(users,3)
-    # page = request.GET.get('page')
-    # paged_product=paginator.get_page(page)       
+     
+    
+    
+    
+    paginator = Paginator(users, 5)  # Show 10 users per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    page_range = paginator.get_elided_page_range(page_obj.number, on_each_side=3, on_ends=2)
+    
    
     dict_user={
-            'users':users,
+   
+        'users': page_obj,
+    }
             
-        }
+        
     return render(request,'myadmin/user_management.html',dict_user)
 
 def block_user(request, user_id):
@@ -57,15 +62,26 @@ def unblock_user(request, user_id):
 
 # category
 def category_management(request):
-    categories = Category.objects.filter().order_by('-id')
+    categories = Category.objects.all().order_by('-id')
     if request.method == 'POST':            
         search = request.POST['search']         
         searchresult = Category.objects.filter(category_name__contains=search)           
         return render(request,'myadmin/search_category.html',{'result':searchresult})          
-                
+        
+    paginator = Paginator(categories, 5)  # Show 10 users per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    page_range = paginator.get_elided_page_range(page_obj.number, on_each_side=3, on_ends=2)
+    
+   
+                    
 
     dict_category = {
-        'categories': categories,
+        'categories': page_obj,
+        'paginator': paginator,
+    'page_range': page_range,
+ 
+        
     }
 
     return render(request, 'myadmin/category_management.html', dict_category)
@@ -114,18 +130,38 @@ def category_add(request):
 # product management
   
 def product_management(request):
-    products = Product.objects.filter(is_available=True)
+    products = Product.objects.all().order_by('id') 
     if request.method == 'POST':            
         search = request.POST['search']         
         searchresult = Product.objects.filter(product_name__contains=search)           
         return render(request,'myadmin/product_search.html',{'result':searchresult})     
 
-    dict_product = {
-        'products': products,
+
+       
+    paginator = Paginator(products, 5)  # Show 10 users per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    page_range = paginator.get_elided_page_range(page_obj.number, on_each_side=3, on_ends=2)
+   
+   
+    dict_product={
+   
+    'products': page_obj,
+    'paginator': paginator,
+    'page_range': page_range,
+ 
     }
+            
+        
+    return render(request,'myadmin/product_management.html',dict_product)
 
-    return render(request, 'myadmin/product_management.html', dict_product)
 
+
+
+
+
+
+  
 
 
 def product_edit(request, product_id):
@@ -251,3 +287,12 @@ def update_record(request,user_id):
     else:
         update_user.update(username=username,email=email)
         return redirect(user_management)
+    
+    
+    
+    
+# def variation_management(request,product_id):
+    
+    
+    
+#     return redirect(variation_management)
