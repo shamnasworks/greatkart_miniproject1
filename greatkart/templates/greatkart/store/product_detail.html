@@ -35,9 +35,9 @@
 									<h6>Choose Color</h6>
 									<select name="color" id="" class="form-control" required>
 										<option value="" disabled selected >Select</option>
-										{% for variation in single_product.variation_set.all %}
-											{% if variation.variation_type == 'color' %}
-												<option value="{{ variation.variation_value | lower }}">{{ variation.variation_value | capfirst }}</option>
+										{% for i in single_product.variation_set.all %}
+										{% if i.variation_category == 'color' %}
+												<option value="{{ i.variation_value | lower }}">{{ i.variation_value | capfirst }}</option>
 											{% endif %}
 										{% endfor %}
 									</select>
@@ -48,9 +48,9 @@
 									<h6>Select Size</h6>
 									<select name="size" id="" class="form-control">
 										<option value="" disabled selected >Select</option>
-										{% for variation in single_product.variation_set.all %}
-											{% if variation.variation_type == 'size' %}
-												<option value="{{ variation.variation_value | lower }}">{{ variation.variation_value | capfirst }}</option>
+										{% for i in single_product.variation_set.all %}
+										{% if i.variation_category == 'size' %}
+												<option value="{{ i.variation_value | lower }}">{{ i.variation_value | capfirst }}</option>
 											{% endif %}
 										{% endfor %}
 									</select>

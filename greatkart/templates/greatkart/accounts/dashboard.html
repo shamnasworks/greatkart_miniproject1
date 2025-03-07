@@ -5,29 +5,36 @@
 {% include 'greatkart/includes/alerts.html' %}
     <div class="container">
         <div class="row">
-        <aside class="col-md-3">
-            <!--   SIDEBAR   -->
-            <ul class="list-group">
-                <a class="list-group-item active" href="#"> My order history </a>
-                <a class="list-group-item" href="#"> Transactions </a>
-                <a class="list-group-item" href="#"> Return and refunds </a>
-                <a class="list-group-item" href="#">Settings </a>
-                <a class="list-group-item" href="#"> My Selling Items </a>
-                <a class="list-group-item" href="#"> Received orders </a>
-            </ul>
-            <br>
-            <a class="btn btn-light btn-block" href="{% url 'userlogout' %}"> <i class="fa fa-power-off"></i> <span class="text">Log out</span> </a> 
-            <!--   SIDEBAR .//END   -->
-        </aside>
+        {% include "greatkart/includes/dashboard_sidebar.html" %}
         <main class="col-md-9">
             <article class="card">
             <header class="card-header">
-                <strong class="d-inline-block mr-3">Order ID: 6123456789</strong>
-                <span>Order Date: 16 December 2018</span>
+                <strong class="d-inline-block mr-3">Logged in as </strong>
+                <span>{{ user.full_name }}</span>
             </header>
             <div class="card-body">
                 <div class="row"> 
-                    <div class="col-md-8">
+                    <div class="col-md-6">
+                        <div class="card" style="text-align: center;">
+                            <div class="card-body">
+                                <h5 class="title">Total Orders</h5>
+                                <h4>$100</h4>
+                                <a href="">View Orders</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card" style="text-align: center;">
+                            <div class="card-body">
+                                <img src="{% static 'greatkart/images/avatars/avatar4.jpg' %}" alt="User profile picture" class="avatar" width="50" height="50" style="border-radius: 50%;">
+                                <p class="mb-0">{{ user.email }}</p>
+                                <p>{{ user.phone_number }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                  {% comment %} <div class="col-md-8">
                         <h6 class="text-muted">Delivery to</h6>
                         <p>Michael Jackson <br>  
                         Phone +1234567890 Email: myname@pixsellz.com <br>
@@ -45,11 +52,11 @@
                          Shipping fee:  $56 <br> 
                          <span class="b">Total:  $456 </span>
                         </p>
-                    </div>
+                    </div>   {% endcomment %}
                 </div> <!-- row.// -->
             </div> <!-- card-body .// -->
             <div class="table-responsive">
-            <table class="table table-hover">
+            {% comment %} <table class="table table-hover">
                 <tr>
                     <td width="65">
                         <img src="{% static 'greatkart/../images/items/1.jpg' %}" class="img-xs border">
@@ -83,7 +90,7 @@
                     <td> Seller <br> Wallmart </td>
                     <td> <a href="#" class="btn btn-outline-primary">Track order</a> <a href="#" class="btn btn-light"> Details </a> </td>
                 </tr>
-            </table>
+            </table> {% endcomment %}
             </div> <!-- table-responsive .end// -->
             </article> <!-- order-group.// --> 
         </main>
