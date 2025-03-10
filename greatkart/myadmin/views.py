@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ProductForm
 from accounts.views import dashboard
 from django.core.paginator import EmptyPage,PageNotAnInteger,Paginator
-
+from orders.models import Order,OrderProduct
 # Create your views here.
 def index(request):
     
@@ -251,3 +251,20 @@ def update_record(request,user_id):
     else:
         update_user.update(username=username,email=email)
         return redirect(user_management)
+    
+    
+def orders_management(request):
+    orders = Order.objects.all().order_by('-id')
+    # if request.method == 'POST':            
+    #     search = request.POST['search']         
+    #     searchresult = Account.objects.filter(__contains=search)           
+    #     return render(request,'myadmin/search.html',{'result':searchresult})          
+    paginator = Paginator(orders,3)
+    page = request.GET.get('page')
+    paged_product=paginator.get_page(page)       
+   
+    dict_orders={
+            'orders':orders,
+            
+        }
+    return render(request,'myadmin/orders_management.html',dict_orders)

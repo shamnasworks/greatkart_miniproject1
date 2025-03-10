@@ -25,7 +25,7 @@ Already verified? <a href="{% url 'userlogin' %}">Login</a>
       <div class="card-body">
       <h4 class="card-title mb-4">Sign in</h4>
       <form action="{% url 'userlogin' %}" method="POST">
-        {% csrf_token %}  
+         {% csrf_token %}  
         <div class="form-group">
 			 <input type="email" class="form-control" placeholder="Email Address" name="email" >
           </div> <!-- form-group// -->

@@ -1,0 +1,154 @@
+{% extends "greatkart/base.html" %}
+{% load static %}
+{% block content %}
+
+
+<section class="section-content padding-y bg">
+    <div class="container">
+    
+            <div class="row">
+                <h4 class="text-center mb-10">Review Your  Order and Make Payment</h4>
+                <aside class="col-lg-8">
+                   
+                    <div class="card">
+                        <div class="card-header">
+                          Billing Address
+                        </div>
+                        <div class="card-body">
+                          
+                          <p class="card-text mb-0">{{ order.full_name }}</p>
+                          <p class="card-text mb-0">{{ order.full_address }}</p>
+                          <p class="card-text mb-0">{{ order.city }},{{ order.state}}</p>
+                          <p class="card-text mb-0">{{ order.country }}</p>
+                          <p class="card-text mb-0">{{ order.email }}</p>
+                          <p class="card-text mb-0">{{ order.phone  }}</p>
+                          {% if order.order_note %}
+                            <b>Order_note : </b>{{ order.order_note }}
+                          <b></b>
+                          {% endif %}
+
+                        </div>
+                      </div>
+                      <div class="card">
+                        <div class="card-header">
+                          Payment Methods
+                        </div>
+                        <div class="card-body">
+                          
+                               <!-- payments.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <h2>Payment Options</h2>
+        <hr>
+        <form method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="payment_method">Select Payment Method:</label>
+            <select class="form-control" id="payment_method" name="payment_method">
+              <option value="COD">Cash on Delivery (COD)</option>
+              <!-- Add other payment options here -->
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Place Order</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}                     
+
+                          
+                        </div>
+                      </div>
+                      <div class="card">
+                        <div class="card-header">
+                         Review Products
+                        </div>
+                        <div class="card-body">
+                          
+                            <table class="table table-borderless table-shopping-cart">
+                                <thead class="text-muted">
+                                <tr class="small text-uppercase">
+                                  <th scope="col">Product</th>
+                                  <th scope="col" width="120">Quantity</th>
+                                  <th scope="col" width="120">Price</th>
+                          
+                                </tr>
+                                </thead>
+                                <tbody>
+                          
+                                {% for cart_item in cart_items %}
+                                <tr>
+                                    <td>
+                                        <figure class="itemside align-items-center">
+                                            <div class="aside"><img src="{{ cart_item.product.images.url }}" class="img-sm"></div>
+                                            <figcaption class="info">
+                                                <a href="{{ cart_item.product.get_url }}" class="title text-dark">{{ cart_item.product.product_name }}</a>
+                                                <p class="text-muted small">
+                                                    {% if cart_item.variations.all %}
+                                                        {% for item in cart_item.variations.all %}
+                                                            {{ item.variation_category | capfirst }} : {{ item.variation_value | capfirst }} <br>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                </p>
+                                            </figcaption>
+                                        </figure>
+                                    </td>
+                                    <td>
+                                        <!-- col.// -->
+                                                <label for="">{{cart_item.quantity}}</label>
+                                    </td>
+                                    <td>
+                                        <div class="price-wrap">
+                                            <var class="price">$ {{ cart_item.sub_total }}</var>
+                                            <small class="text-muted"> $ {{ cart_item.product.price }} each </small>
+                                        </div> <!-- price-wrap .// -->
+                                    </td>
+                          
+                                </tr>
+                                {% endfor %}
+                          
+                                </tbody>
+                                </table>
+                          
+                        </div>
+                      </div>
+                </aside> <!-- col.// -->
+                <aside class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <dl class="dlist-align">
+                                <dt>Total price:</dt>
+                                <dd class="text-right">${{total}}</dd>
+                            </dl>
+                            <dl class="dlist-align">
+                                <dt>Tax:</dt>
+                                <dd class="text-right"> ${{tax}}</dd>
+                            </dl>
+                            <dl class="dlist-align">
+                                <dt>Grand Total:</dt>
+                                <dd class="text-right text-dark b"><strong>${{grand_total}}</strong></dd>
+                            </dl>
+                            <hr>
+                            <p class="text-center mb-3">
+                                <img src="{% static 'greatkart/./images/misc/payments.png' %}" height="26">
+                            </p>
+                            <a href="{% url 'checkout' %}" class="btn btn-primary btn-block"> Make payment </a>
+          
+                        </div> <!-- card-body.// -->
+                    </div> <!-- card.// --> 
+                </aside> <!-- col.// -->
+            </div> <!-- row.// -->
+
+    </div> <!-- container .//  -->
+</section>
+
+
+
+{% endblock content %}
+
+

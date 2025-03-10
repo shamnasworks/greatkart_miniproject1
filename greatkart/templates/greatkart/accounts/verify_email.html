@@ -1,0 +1,10 @@
+{% autoescape off %}
+Dear {{ user.get_full_name }},
+
+Please verify your email address by clicking on the following link:
+
+{{ domain }}{% url 'verify_email' uidb64 token %}
+
+Best regards,
+Your Website
+{% endautoescape %}
