@@ -2,8 +2,12 @@ from django.shortcuts import render,redirect
 from carts.models import CartItem,Cart
 from . models import Order,OrderProduct,Payment
 from . forms import OrderForm
+# from django.db.models.signals import post_save
+# from django.dispatch import receiver
 import datetime
+from django.shortcuts import render, get_object_or_404
 from orders.models import Order,OrderProduct
+from django.contrib import messages
 # Create your views here.
 def place_order(request,total = 0, quantity = 0):
     current_user = request.user
@@ -79,11 +83,19 @@ def place_order(request,total = 0, quantity = 0):
                 'grand_total':grand_total,
             }
              # Redirect to success page after payment
+            # CartItem.objects.filter(user=request.user).delete()
+            messages.success(request, 'Order placed successfully!')
             return redirect('order_success')
                 
 
     else:
         return redirect('checkout')
+    
+
+
+# def order_details(request, order_id):
+#     order = get_object_or_404(Order, id=order_id)
+#     return render(request, 'greatkart/orders/order_details.html', {'order': order})
     
 def payments(request):
     
@@ -132,3 +144,33 @@ def order_success(request):
     
     
     return render(request,'greatkart/orders/order_success.html')
+
+def cancel_order(request, order_id):
+    order = Order.objects.get(id=order_id)
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '')
+        order.cancelled = True
+        order.save()
+        for item in order.orderitem_set.all():
+            item.cancelled_quantity = item.quantity
+            item.save()
+            product = item.product
+            product.stock += item.quantity
+            product.save()
+        messages.success(request, 'Order cancelled successfully!')
+        return redirect('orders_management')
+    return render(request, 'myadmin/cancel_order.html', {'order': order})
+
+def cancel_order_item(request, order_id, item_id):
+    order = Order.objects.get(id=order_id)
+    item = OrderProduct.objects.get(id=item_id)
+    if request.method == 'POST':
+        reason = request.POST.get('reason', '')
+        item.cancelled_quantity = item.quantity
+        item.save()
+        product = item.product
+        product.stock += item.quantity
+        product.save()
+        messages.success(request, 'Order item cancelled successfully!')
+        return redirect('orders_management')
+    return render(request, 'myadmin/cancel_order_item.html', {'order': order, 'item': item})

@@ -385,6 +385,7 @@ def address_delete(request, pk):
 
 def my_orders(request):
     orders = Order.objects.filter(user=request.user)
+    # order = get_object_or_404(Order, id=order_id)
     context = {
         'orders': orders,
     }

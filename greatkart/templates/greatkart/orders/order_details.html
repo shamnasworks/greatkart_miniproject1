@@ -1,0 +1,54 @@
+{% comment %} {% comment %} <h2>Order Details</h2>
+
+<p>Order Number: {{ order.order_number }}</p>
+<p>Order Date: {{ order.order_date }}</p>
+<p>Status: {{ order.status }}</p>
+<p>Total: {{ order.total }}</p>
+
+<h3>Order Items:</h3>
+<ul>
+  {% for item in order.orderitem_set.all %}
+  <li>{{ item.product.name }} x {{ item.quantity }}</li>
+  {% endfor %}
+</ul> 
+
+<!-- order_success.html -->
+{% extends "greatkart/base.html" %}
+{% load static %}
+{% block content %}
+
+
+<section class="section-content padding-y bg">
+ 
+    <!-- order_details.html -->
+
+<h2>Order Details</h2>
+
+<p>Order Number: {{ order.order_number }}</p>
+<p>Order Date: {{ order.created_at }}</p>
+<p>Status: {{ order.status }}</p>
+<p>Total: {{ order.total }}</p>
+
+<h3>Order Items:</h3>
+<ul>
+  {% for item in order.orderitem_set.all %}
+  <li>{{ item.product.name }} x {{ item.quantity }}</li>
+  {% endfor %}
+</ul>
+    <br>
+    <div class="text-center">
+        <a href="{% url 'store' %}" class="btn btn-primary">Continue Shopping
+
+        </a>
+        <a href="{% url 'order_details' %}" class="btn btn-primary">Continue Shopping
+            
+        </a>
+    </div>
+</section>
+
+
+
+{% endblock content %}
+
+
+ {% endcomment %}

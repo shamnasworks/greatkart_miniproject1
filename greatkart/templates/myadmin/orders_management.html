@@ -83,6 +83,7 @@ rel="stylesheet">
               <thead>
                   <tr>
                     {% comment %} ('email', 'first_name', 'last_name', 'username', 'last_login', 'date_joined', 'is_active') {% endcomment %}
+                    <th>Id</th>
                     <th>Order Number</th>
                     <th>Order Date</th>
                     <th>Status</th>
@@ -97,11 +98,21 @@ rel="stylesheet">
                       <th scope="row">{{forloop.counter}}</th>
                       <td>{{u.order_number}}</td>
                       
-                      <td>{{u.order_date}}</td>
+                      <td>{{u.created_at}}</td>
+                      <td>
                       {% comment %} <td>{{ u.status }}</td> {% endcomment %}
-                      <td>{{ u.get_status_display }}</td>
+                      <form method="post" action="{% url 'update_order_status' u.id %}">
+                        {% csrf_token %}
+                        <select name="status" onchange="this.form.submit()">
+                            <option value="New" {% if u.status == 'New' %}selected{% endif %}>New</option>
+                            <option value="Accepted" {% if u.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                            <option value="Completed" {% if u.status == 'Completed' %}selected{% endif %}>Completed</option>
+                            <option value="Cancelled" {% if u.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                        </select>
+                    </form>
+                </td>
                       {% comment %} <td>{{u.last_login}}</td> {% endcomment %}
-                      <td>{{ u.total }}</td>
+                      <td>{{ u.order_total }}</td>
                       {% comment %} <td>{{u.username}}</td> {% endcomment %}
                       <td>
                           <!-- Button trigger modal -->

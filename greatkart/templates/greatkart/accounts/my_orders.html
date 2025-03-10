@@ -34,11 +34,24 @@
       <td>{{ order.status }}</td>
       <td>{{ order.order_total }}</td>
       <td>
-        <a href="{% url 'my_orders'  %}" class="btn btn-primary">View Details</a>
+        <a href="{% url 'my_orders' %}" class="btn btn-primary">View Details</a>
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+<!-- JavaScript code to load order details -->
+{% comment %} <script>
+    function loadOrderDetails(orderId) {
+      $.ajax({
+        type: 'GET',
+        url: '{% url 'order_details' %}',
+        data: {'order_id': orderId},
+        success: function(data) {
+          $('#order-details').html(data);
+        }
+      });
+    }
+  </script> {% endcomment %}
 
 {% endblock %}

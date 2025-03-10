@@ -23,10 +23,10 @@ def index(request):
 
 def user_management(request):
     users=Account.objects.all().order_by('-id')
-    # paginator = Paginator(users,1)
-    # page = request.GET.get('page')
-    # paged_user=paginator.get_page(page)
-    # user_count = users.count()
+    paginator = Paginator(users,1)
+    page = request.GET.get('page')
+    paged_user=paginator.get_page(page)
+    user_count = users.count()
     if request.method == 'POST':            
         search = request.POST['search']         
         searchresult = Account.objects.filter(username__contains=search)           
@@ -36,7 +36,7 @@ def user_management(request):
     # paged_product=paginator.get_page(page)       
    
     dict_user={
-            'users':users,
+            'users':paged_user,
             
         }
     return render(request,'myadmin/user_management.html',dict_user)
@@ -58,6 +58,12 @@ def unblock_user(request, user_id):
 # category
 def category_management(request):
     categories = Category.objects.filter().order_by('-id')
+    
+    paginator = Paginator(categories,1)
+    page = request.GET.get('page')
+    paged_category=paginator.get_page(page)
+    user_count = categories.count()
+    
     if request.method == 'POST':            
         search = request.POST['search']         
         searchresult = Category.objects.filter(category_name__contains=search)           
@@ -65,7 +71,7 @@ def category_management(request):
                 
 
     dict_category = {
-        'categories': categories,
+        'categories': paged_category,
     }
 
     return render(request, 'myadmin/category_management.html', dict_category)
@@ -240,6 +246,7 @@ def delete_record(request,user_id):
     return redirect(user_management)
 
 
+
 def update_record(request,user_id):
     username=request.POST['username']
     email=request.POST['email']
@@ -255,16 +262,30 @@ def update_record(request,user_id):
     
 def orders_management(request):
     orders = Order.objects.all().order_by('-id')
-    # if request.method == 'POST':            
-    #     search = request.POST['search']         
-    #     searchresult = Account.objects.filter(__contains=search)           
-    #     return render(request,'myadmin/search.html',{'result':searchresult})          
+    if request.method == 'POST':            
+        search = request.POST['search']         
+        searchresult = Order.objects.filter(__contains=search)           
+        return render(request,'myadmin/search_order.html',{'result':searchresult})          
     paginator = Paginator(orders,3)
     page = request.GET.get('page')
     paged_product=paginator.get_page(page)       
-   
+    # if order.update_status('Accepted'):
+    #      print("Order status updated successfully!")
+    # else:
+    #     print("Invalid status!")
     dict_orders={
             'orders':orders,
             
         }
     return render(request,'myadmin/orders_management.html',dict_orders)
+
+
+def update_order_status(request, order_id):
+    order = Order.objects.get(id=order_id)
+    if request.method == 'POST':
+        status = request.POST['status']
+        order.status = status
+        order.save()
+        messages.success(request, 'Order status updated successfully!')
+        return redirect('orders_management')
+    return redirect('orders_management')
