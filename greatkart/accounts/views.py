@@ -18,6 +18,7 @@ from .forms import UserForm,UserProfileForm,AddressForm
 from .models import UserProfile
 from orders.models import Order,OrderProduct
 
+
 from django.contrib.auth import update_session_auth_hash
 from django.core.mail import send_mail
 # import requests
@@ -59,6 +60,10 @@ def register(request):
             return redirect('userlogin?command=verification&email='+email)
     else:       
          form = RegistrationForm()
+         
+         
+         
+
     context = {
          'form': form,
      }
@@ -290,30 +295,35 @@ def verify_email(request, uidb64, token):
 # @login_required(login_url='login')
 def change_password(request):
     if request.method == 'POST':
-        current_password = request.POST['current_password']
-        new_password = request.POST['new_password']
-        confirm_password = request.POST['confirm_password']
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        # Validation
+        if not all([current_password, new_password, confirm_password]):
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'greatkart/accounts/change_password.html')
+
+        if len(new_password) < 8:
+            messages.error(request, 'New password must be at least 8 characters long.')
+            return render(request, 'greatkart/accounts/change_password.html')
+
+        if new_password != confirm_password:
+            messages.error(request, 'Password does not match!')
+            return render(request, 'greatkart/accounts/change_password.html')
 
         user = Account.objects.get(username__exact=request.user.username)
 
-        if new_password == confirm_password:
-            success = user.check_password(current_password)
-            if success:
-                user.set_password(new_password)
-                user.save()
-                # auth.logout(request)
-                messages.success(request, 'Password updated successfully.')
-                return redirect('change_password')
-            else:
-                messages.error(request, 'Please enter valid current password')
-                return redirect('change_password')
-        else:
-            messages.error(request, 'Password does not match!')
-            return redirect('change_password')
+        if not user.check_password(current_password):
+            messages.error(request, 'Please enter valid current password')
+            return render(request, 'greatkart/accounts/change_password.html')
 
-    return render(request,'greatkart/accounts/change_password.html')
+        user.set_password(new_password)
+        user.save()
+        messages.success(request, 'Password updated successfully.')
+        return redirect('change_password')
 
-
+    return render(request, 'greatkart/accounts/change_password.html')
 
 
 def address_add(request):
@@ -323,6 +333,27 @@ def address_add(request):
         city = request.POST.get('city')
         state = request.POST.get('state')
         country = request.POST.get('country')
+        
+        # Validation
+        if not all([address_line_1, city, state, country]):
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'greatkart/accounts/addresses/address_add.html')
+
+        if len(address_line_1) < 5:
+            messages.error(request, 'Address line 1 must be at least 5 characters long.')
+            return render(request, 'greatkart/accounts/addresses/address_add.html')
+
+        if len(city) < 3:
+            messages.error(request, 'City must be at least 3 characters long.')
+            return render(request, 'greatkart/accounts/addresses/address_add.html')
+
+        if len(state) < 3:
+            messages.error(request, 'State must be at least 3 characters long.')
+            return render(request, 'greatkart/accounts/addresses/address_add.html')
+
+        if len(country) < 3:
+            messages.error(request, 'Country must be at least 3 characters long.')
+            return render(request, 'greatkart/accounts/addresses/address_add.html')
 
         Address.objects.create(
             user=request.user,
@@ -352,6 +383,27 @@ def address_update(request, pk):
         city = request.POST.get('city')
         state = request.POST.get('state')
         country = request.POST.get('country')
+        
+         # Validation
+        if not all([address_line_1, city, state, country]):
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'greatkart/accounts/addresses/address_update.html', {'address': address})
+
+        if len(address_line_1) < 5:
+            messages.error(request, 'Address line 1 must be at least 5 characters long.')
+            return render(request, 'greatkart/accounts/addresses/address_update.html', {'address': address})
+
+        if len(city) < 3:
+            messages.error(request, 'City must be at least 3 characters long.')
+            return render(request, 'greatkart/accounts/addresses/address_update.html', {'address': address})
+
+        if len(state) < 3:
+            messages.error(request, 'State must be at least 3 characters long.')
+            return render(request, 'greatkart/accounts/addresses/address_update.html', {'address': address})
+
+        if len(country) < 3:
+            messages.error(request, 'Country must be at least 3 characters long.')
+            return render(request, 'greatkart/accounts/addresses/address_update.html', {'address': address})
 
         address.address_line_1 = address_line_1
         address.address_line_2 = address_line_2
@@ -369,13 +421,25 @@ def address_update(request, pk):
 def address_delete(request, pk):
     user_profile = UserProfile.objects.get(user=request.user)
     address = user_profile.address_line_1
+
+    # Validation
+    if not address:
+        messages.error(request, 'No address found to delete.')
+        return redirect('address_update')
+
     if request.method == 'POST':
+        # Confirm deletion
+        if request.POST.get('confirm_deletion') != 'yes':
+            messages.error(request, 'Please confirm address deletion.')
+            return render(request, 'greatkart/accounts/addresses/address_delete.html', {'address': address})
+
         user_profile.address_line_1 = ''
         user_profile.address_line_2 = ''
         user_profile.city = ''
         user_profile.state = ''
         user_profile.country = ''
         user_profile.save()
+
         messages.success(request, 'Address deleted successfully.')
         return redirect('address_update')
     context = {
@@ -384,7 +448,7 @@ def address_delete(request, pk):
     return render(request, 'greatkart/accounts/addresses/address_delete.html', context)
 
 def my_orders(request):
-    orders = Order.objects.filter(user=request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-id')
     # order = get_object_or_404(Order, id=order_id)
     context = {
         'orders': orders,

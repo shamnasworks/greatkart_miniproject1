@@ -17,7 +17,15 @@ class VariationAdmin(admin.ModelAdmin):
     list_editable = ('is_active',)
     list_filter = ('product', 'variation_category', 'variation_value')
 
+class ReviewRatingAdmin(admin.ModelAdmin):
+    list_display = ('product', 'user', 'rating', 'review', 'created_at')
+    list_filter = ('product', 'user', 'rating')
+    search_fields = ('product__product_name', 'user__username', 'review')
+
+# Register the ReviewRating model with the custom admin class
+admin.site.register(ReviewRating, ReviewRatingAdmin)
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Variation, VariationAdmin)
-admin.site.register(ReviewRating)
+
 admin.site.register(ProductGallery)

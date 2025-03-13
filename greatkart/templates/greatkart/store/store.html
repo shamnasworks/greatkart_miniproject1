@@ -111,20 +111,52 @@
                                 </div><!-- card-body.// -->
                             </div>
                         </article> <!-- filter-group .// -->
+                        <article class="filter-group">
+                            <header class="card-header">
+                                <a href="#" data-toggle="collapse" data-target="#collapse_3" aria-expanded="true" class="">
+                                    <i class="icon-control fa fa-chevron-down"></i>
+                                        <h6 class="title">Sort</h6>
+                                </a>
+                            </header>
+                            <div class="filter-content collapse show" id="collapse_3" style="">
+                                <div class="card-body">
+                                    <form method="get" action="{% url 'store' %}">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-9">
+                                            {% comment %} <label></label> {% endcomment %}
+                                                <!-- <input class="form-control" placeholder="$0" type="number"> -->
+                                                     <select class="mr-2 form-control" name="sort" id="sort-select">
+                                                        <option value="price-low-to-high">Price: Low to High</option>
+                                                        <option value="price-high-to-low">Price: High to Low</option>
+                                                        <option value="name-a-to-z">Name: A to Z</option>
+                                                        <option value="name-z-to-a">Name: Z to A</option>
+                                                        <option value="category-a-to-z">Category: A to Z</option>
+                                                        <option value="category-z-to-a">Category: Z to A</option>
+                        
+                                                    </select>                                                    
+                                                     <!-- store.html -->
+{% comment %} <select name="sort" onchange="this.form.submit()">
+    <option value="price-low-to-high">Price: Low to High</option>
+    <option value="price-high-to-low">Price: High to Low</option>
+    <option value="name-a-to-z">Name: A to Z</option>
+    <option value="name-z-to-a">Name: Z to A</option>
+    <option value="category-a-to-z">Category: A to Z</option>
+    <option value="category-z-to-a">Category: Z to A</option>
+    <option value="color">Color: A to Z</option>
+    <option value="color-reverse">Color: Z to A</option>
+    <option value="size">Size: A to Z</option>
+    <option value="size-reverse">Size: Z to A</option>
+</select> {% endcomment %}
+                                        </div>
+                                    </div> <!-- form-row.// -->
+                                    <button class="btn btn-block btn-primary">Apply</button>
+                                </form>
+                                </div><!-- card-body.// -->
+                            </div>
+                        </article>
+
                     </div> <!-- card.// -->
-                    <div class="sort-options">
-                        <form method="get" action="{% url 'store' %}">
-                            <select name="sort" id="sort-select">
-                                <option value="price-low-to-high">Price: Low to High</option>
-                                <option value="price-high-to-low">Price: High to Low</option>
-                                <option value="name-a-to-z">Name: A to Z</option>
-                                <option value="name-z-to-a">Name: Z to A</option>
-                                <option value="category-a-to-z">Category: A to Z</option>
-                                <option value="category-z-to-a">Category: Z to A</option>
-                            </select>
-                            <button type="submit">Sort</button>
-                        </form>
-                    </div>
+                   
                 </aside> <!-- col.// -->
                 <main class="col-md-9">
                     <header class="border-bottom mb-4 pb-3">

@@ -92,7 +92,7 @@ rel="stylesheet">
                 </tr>
                 {% for category in categories %}
                 <tr>
-                    <th scope="row">{{forloop.counter}}</th>
+                    <th scope="row">{{ start_index | add:forloop.counter0 }}</th>
                     <td>{{ category.category_name }}</td>
                     <td>{{ category.slug }}</td>
                     <td>

@@ -97,7 +97,7 @@ rel="stylesheet">
               <tbody>
                   {% for product in products %}
                   <tr>
-                      <th scope="row">{{forloop.counter}}</th>
+                      <th scope="row">{{ start_index | add:forloop.counter0 }}</th>
                       <td>{{ product.product_name }}</td>
                       <td>{{ product.price }}</td>
                       <td>{{ product.stock }}</td>
@@ -268,7 +268,7 @@ aria-labelledby="exampleModalLabel" aria-hidden="true">
                 class="row g-2">
                 {% csrf_token %}
                 <div class="form-outline mb-3">
-                    <input required name="product_name" value="{{ product.product_name}}"
+                    <input required name="productname" value="{{ product.product_name}}"
                         type="text" id="form3Example1cg"
                         class="form-control form-control-lg" />
                     <label class="form-label" for="form3Example1cg">Product Name</label>
@@ -305,14 +305,16 @@ aria-labelledby="exampleModalLabel" aria-hidden="true">
                         class="form-control form-control-lg" />
                     <label class="form-label" for="form3Example3cg">Stock</label>
                 </div>
-               
-
-                <div class="form-outline mb-3">
+                <div>
+                    <input type="checkbox" id="is_available" name="is_available" {% if product.is_available %}checked{% endif %}>
+                    <label for="is_available">Is Available</label>
+                </div>
+                {% comment %} <div class="form-outline mb-3">
                     <input required name="is_available" type="checkbox" id="form3Example3cg" class="form-control form-control-lg"
                         {% if product.is_available %}checked{% endif %} />
                     <label class="form-label" for="form3Example3cg">Is available</label>
                     {{ product.is_available }} 
-                </div>
+                </div> {% endcomment %}
                 <div class="form-outline mb-3">
                     <input required name="category" value="{{ product.category }}"
                         type="text" id="form3Example3cg"

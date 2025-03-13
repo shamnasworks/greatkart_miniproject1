@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ProductForm
 from accounts.views import dashboard
 from django.core.paginator import EmptyPage,PageNotAnInteger,Paginator
-from orders.models import Order,OrderProduct
+from orders.models import Order,OrderProduct,OrderStatusHistory
 # Create your views here.
 def index(request):
     
@@ -26,6 +26,16 @@ def user_management(request):
     paginator = Paginator(users,1)
     page = request.GET.get('page')
     paged_user=paginator.get_page(page)
+    
+    start_index = paginator.per_page * (paged_user.number - 1) + 1
+    end_index = start_index + paginator.per_page - 1
+
+    if end_index > paginator.count:
+        end_index = paginator.count
+    
+    
+    
+    
     user_count = users.count()
     if request.method == 'POST':            
         search = request.POST['search']         
@@ -37,6 +47,8 @@ def user_management(request):
    
     dict_user={
             'users':paged_user,
+                 'start_index': start_index,
+    'end_index': end_index,
             
         }
     return render(request,'myadmin/user_management.html',dict_user)
@@ -64,6 +76,12 @@ def category_management(request):
     paged_category=paginator.get_page(page)
     user_count = categories.count()
     
+    start_index = paginator.per_page * (paged_category.number - 1) + 1
+    end_index = start_index + paginator.per_page - 1
+
+    if end_index > paginator.count:
+        end_index = paginator.count
+    
     if request.method == 'POST':            
         search = request.POST['search']         
         searchresult = Category.objects.filter(category_name__contains=search)           
@@ -72,6 +90,8 @@ def category_management(request):
 
     dict_category = {
         'categories': paged_category,
+             'start_index': start_index,
+    'end_index': end_index,
     }
 
     return render(request, 'myadmin/category_management.html', dict_category)
@@ -125,33 +145,91 @@ def product_management(request):
         search = request.POST['search']         
         searchresult = Product.objects.filter(product_name__contains=search)           
         return render(request,'myadmin/product_search.html',{'result':searchresult})     
+    paginator = Paginator(products,1)
+    page = request.GET.get('page')
+    paged_products=paginator.get_page(page)
+    prodcuct_count = products.count()
+    
+    
+    start_index = paginator.per_page * (paged_products.number - 1) + 1
+    end_index = start_index + paginator.per_page - 1
+
+    if end_index > paginator.count:
+        end_index = paginator.count
+
 
     dict_product = {
         'products': products,
+                  'start_index': start_index,
+    'end_index': end_index,
     }
 
     return render(request, 'myadmin/product_management.html', dict_product)
 
 
 
-def product_edit(request, product_id):
-    product_name=request.POST['product_name']
-    slug=request.POST['slug']
-    description=request.POST['description']
-    price=request.POST['price']
-    images = request.FILES['images']
-    stock=request.POST['stock']
-    is_avialble=request.POST['is_available']
-    category =request.POST['category']
-    updated_product= Product.objects.filter(id=product_id)
-    updated_product.update(product_name=product_name,slug=slug)
 
-    if Product.objects.filter(product_name__contains=product_name).exists():
-        return redirect(product_management)
-    else:
-        updated_product.update(product_name=product_name,slug=slug)
-        return redirect(product_management)
-  
+def product_edit(request, product_id):
+    product = Product.objects.get(id=product_id)
+    
+    if request.method == 'POST':
+        product_name = request.POST['product_name']
+        slug = request.POST['slug']
+        description = request.POST['description']
+        price = request.POST['price']
+        stock = request.POST['stock']
+        is_available = request.POST.get('is_available', False)
+        category = request.POST['category']
+        
+        # Validation
+        if not product_name:
+            messages.error(request, 'Product name is required.')
+            return render(request, 'product_edit.html', {'product': product})
+        
+        if not slug:
+            messages.error(request, 'Slug is required.')
+            return render(request, 'product_edit.html', {'product': product})
+        
+        if not description:
+            messages.error(request, 'Description is required.')
+            return render(request, 'product_edit.html', {'product': product})
+        
+        if not price:
+            messages.error(request, 'Price is required.')
+            return render(request, 'product_edit.html', {'product': product})
+        
+        if not stock:
+            messages.error(request, 'Stock is required.')
+            return render(request, 'product_edit.html', {'product': product})
+        
+        if not category:
+            messages.error(request, 'Category is required.')
+            return render(request, 'product_edit.html', {'product': product})
+        
+        # Check if product name already exists
+        if Product.objects.filter(product_name__iexact=product_name).exclude(id=product_id).exists():
+            messages.error(request, 'Product name already exists.')
+            return render(request, 'product_edit.html', {'product': product})
+        
+        # Update product
+        product.product_name = product_name
+        product.slug = slug
+        product.description = description
+        product.price = price
+        product.stock = stock
+        product.is_available = is_available
+        product.category = category
+        
+        # Handle image upload
+        if 'images' in request.FILES:
+            product.images = request.FILES['images']
+        
+        product.save()
+        
+        messages.success(request, 'Product updated successfully.')
+        return redirect('product_management')
+    
+    return render(request, 'product_edit.html', {'product': product})
 
 def product_remove(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
@@ -162,12 +240,13 @@ def product_remove(request, product_id):
    
 def add_product(request):
     if request.method == 'POST':
+        # product_name = request.POST.get('productname')
         product_name = request.POST['productname']
         slug = request.POST['slug']
         description = request.POST['description']
         product_images = request.FILES.get('images')
         stock=request.POST['stock']
-        is_avialble=request.POST['is_available']
+        is_available = request.POST.get('is_available', False)
         category =request.POST['category']
         
         product = Product()
@@ -177,6 +256,9 @@ def add_product(request):
         product.slug = slug
         product.description = description
         product.images = product_images
+        product.is_available=is_available
+        product.stock=stock
+        product.category=category
         product.save()
 
         return redirect('product_management')
@@ -259,33 +341,95 @@ def update_record(request,user_id):
         update_user.update(username=username,email=email)
         return redirect(user_management)
     
-    
-def orders_management(request):
-    orders = Order.objects.all().order_by('-id')
-    if request.method == 'POST':            
-        search = request.POST['search']         
-        searchresult = Order.objects.filter(__contains=search)           
-        return render(request,'myadmin/search_order.html',{'result':searchresult})          
-    paginator = Paginator(orders,3)
-    page = request.GET.get('page')
-    paged_product=paginator.get_page(page)       
-    # if order.update_status('Accepted'):
-    #      print("Order status updated successfully!")
-    # else:
-    #     print("Invalid status!")
-    dict_orders={
-            'orders':orders,
-            
-        }
-    return render(request,'myadmin/orders_management.html',dict_orders)
 
-
+# views.py
 def update_order_status(request, order_id):
     order = Order.objects.get(id=order_id)
-    if request.method == 'POST':
-        status = request.POST['status']
-        order.status = status
+    new_status = request.POST['status']
+
+    # Define the allowed status transitions
+    allowed_transitions = {
+        'New': ['Accepted', 'Cancelled'],
+        'Accepted': ['Completed', 'Cancelled'],
+        'Completed': [],
+        'Cancelled': []
+    }
+
+    # Check if the new status is in the allowed transitions
+    if new_status in allowed_transitions.get(order.status, []):
+        order.status = new_status
         order.save()
+
+        # Create a new OrderStatusHistory object
+        OrderStatusHistory.objects.create(order=order, old_status=order.status, new_status=new_status)
+
         messages.success(request, 'Order status updated successfully!')
-        return redirect('orders_management')
+    else:
+        messages.error(request, 'Invalid status transition!')
+
     return redirect('orders_management')
+
+
+
+
+def orders_management(request):
+    orders = Order.objects.all().order_by('-id')
+    # if request.method == 'POST':
+    #     order_id = request.POST['order_id']
+    #     new_status = request.POST['new_status']
+
+    #     order = Order.objects.get(id=order_id)
+
+    #     if is_valid_next_status(order, new_status):
+    #         old_status = order.status
+    #         order.status = new_status
+    #         order.save()
+
+    #         OrderStatusHistory.objects.create(order=order, old_status=old_status, new_status=new_status)
+
+    #         messages.success(request, 'Order status updated successfully!')
+    #     else:
+    #         messages.error(request, 'Invalid status transition!')
+
+    paginator = Paginator(orders, 3)
+    page = request.GET.get('page')
+    paged_orders = paginator.get_page(page)
+    
+    start_index = paginator.per_page * (paged_orders.number - 1) + 1
+    end_index = start_index + paginator.per_page - 1
+
+    if end_index > paginator.count:
+        end_index = paginator.count
+
+    dict_orders = {
+        'orders': paged_orders,
+         'start_index': start_index,
+    'end_index': end_index,
+    }
+    return render(request, 'myadmin/orders_management.html', dict_orders)
+
+
+# def is_valid_next_status(order, new_status):
+#     current_status = order.status
+#     status_history = OrderStatusHistory.objects.filter(order=order).order_by('-timestamp')
+
+#     if new_status == current_status:
+#         return False
+
+#     valid_transitions = {
+#         'pending': ['accepted', 'rejected'],
+#         'accepted': ['shipped', 'cancelled'],
+#         'shipped': ['delivered'],
+#         'rejected': [],
+#         'cancelled': [],
+#         'delivered': [],
+#     }
+
+#     if new_status not in valid_transitions.get(current_status, []):
+#         return False
+
+#     for history in status_history:
+#         if history.new_status == new_status:
+#             return False
+
+#     return True

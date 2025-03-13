@@ -89,3 +89,10 @@ class OrderProduct(models.Model):
         return self.product.product_name
 
 
+class OrderStatusHistory(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    old_status = models.CharField(max_length=50)
+    new_status = models.CharField(max_length=50)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+

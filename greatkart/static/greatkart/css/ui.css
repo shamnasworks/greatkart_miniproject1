@@ -7,6 +7,34 @@ html {
   font-size: 15px;
 }
 
+/* mmultiple images */
+/* .extra-images {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.img-small-wrap {
+  margin-right: 10px;
+}
+
+.img-small-wrap img {
+  width: 50px; /* Adjust the width as needed */
+  /* height: 50px; /* Adjust the height as needed 
+  object-fit: cover;
+} 
+*/
+
+
+/* image zooming */
+.image-overlay {
+  width: 200px; /* Adjust zoom size */
+  height: 200px; /* Adjust zoom size */
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
 /* ========================
 INCLUDE STYLES AND COMPONENTS
 ===================== */

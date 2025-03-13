@@ -100,7 +100,7 @@ rel="stylesheet">
               <tbody>
                   {% for u in users %}
                   <tr>
-                      <th scope="row">{{forloop.counter}}</th>
+                      <th scope="row">{{ start_index | add:forloop.counter0 }}</th>
                       <td>{{u.first_name}}</td>
                       
                       <td>{{u.username}}</td>

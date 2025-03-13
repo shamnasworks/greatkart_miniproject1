@@ -39,6 +39,14 @@ def store(request, category_slug=None):
         products = products.order_by('category__category_name')
     elif sort_option == 'category-z-to-a':
         products = products.order_by('-category__category_name')
+    elif sort_option == 'color':
+        products = products.order_by('variation__variation_value')
+    elif sort_option == 'color-reverse':
+        products = products.order_by('-variation__variation_value')
+    elif sort_option == 'size':
+        products = products.order_by('variation__variation_value')
+    elif sort_option == 'size-reverse':
+        products = products.order_by('-variation__variation_value')
 
     paginator = Paginator(products, 3)
     page = request.GET.get('page')
@@ -50,7 +58,6 @@ def store(request, category_slug=None):
         'product_count': product_count,
     }
     return render(request, 'greatkart/store/store.html', context)
-
 
 def get_related_products(product):
     related_products = Product.objects.filter(category=product.category).exclude(id=product.id)[:4]
@@ -69,13 +76,36 @@ def product_detail(request,category_slug,product_slug):
         raise e
     product = Product.objects.get(category__slug=category_slug,slug=product_slug) 
     related_products = get_related_products(product)  
-        
+    # images = ProductGallery.objects.filter(product=product)
+    # print(images)  # Print the query results   
+ # Retrieve only the images that belong to the specific product
+    product_images = ProductGallery.objects.filter(product=single_product)
+    
+    if request.method == 'POST':
+        rating = request.POST['rating']
+        review = request.POST['review']
+
+        # Create a new ReviewRating object
+        review_rating = ReviewRating(
+            product=single_product,
+            user=request.user,
+            rating=rating,
+            review=review,
+            )
+        # Save the ReviewRating object to the database
+        review_rating.save()
+
+    reviews = ReviewRating.objects.filter(product=single_product, status=True)
+    
      
     context = {
         
         'single_product':single_product,
         'related_products': related_products,
         'in_cart':in_cart, 
+         'reviews': reviews,
+            
+            'product_images': product_images,
     }
      
     
@@ -105,10 +135,9 @@ def add_review(request, product_id):
         rating = request.POST.get('rating')
         review = request.POST.get('review')
         product = Product.objects.get(id=product_id)
-        ReviewRating.objects.create(product=product, rating=rating, review=review)
+        ReviewRating.objects.create(product=product, user=request.user, rating=rating, review=review)
         product.rating = (product.rating * product.num_reviews + int(rating)) / (product.num_reviews + 1)
         product.num_reviews += 1
         product.save()
         messages.success(request, 'Review added successfully!')
-        
-        return redirect('product_detail', product_id)
+        return redirect('product_detail', product.category.slug, product.slug)
